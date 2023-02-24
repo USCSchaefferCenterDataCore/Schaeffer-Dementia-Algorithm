@@ -1,0 +1,163 @@
+1                                                          The SAS System                           11:12 Tuesday, February 21, 2023
+
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M6) 
+      Licensed to UNIVERSITY OF SOUTHERN CALIFORNIA-SFA-T&R, Site 70095270.
+NOTE: This session is executing on the Linux 3.10.0-693.21.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Analytical products:
+      
+      SAS/STAT 15.1
+      SAS/ETS 15.1
+      SAS/OR 15.1
+      SAS/IML 15.1
+      SAS/QC 15.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-693.21.1.el7.x86_64 #1 SMP Fri Feb 23 18:54:16 UTC 2018 x86_64 Red Hat Enterprise Linux Server release 7.4 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.54 seconds
+      cpu time            0.02 seconds
+      
+1          /*********************************************************************************************/
+2          title1 'Dementia Algorithm';
+3          
+4          * Author: PF;
+5          * Purpose: Set up my input claims data for the package;
+6          * Input: Synthetic claims data;
+7          * Output: data.claims;
+8          
+9          options compress=yes nocenter ls=150 ps=200 errors=5 mprint merror
+10         	mergenoby=warn varlenchk=error dkricond=error dkrocond=error msglevel=i;
+11         /*********************************************************************************************/
+12         
+13         libname data "../data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /schaeffer-a/sch-projects/public-data-projects/USERS/pferido/Verified_Dementia_Package/data
+14         	
+15         * Setting up my claims data;
+16         data data.inputclaims;
+17         	set data.claims2014-data.claims2017;
+INFO: Data file DATA.CLAIMS2014.DATA is in a format that is native to another host, or the file encoding does not match the session encoding. Cross 
+Environment Data Access will be used, which might require additional CPU resources and might reduce performance.
+INFO: Data file DATA.CLAIMS2015.DATA is in a format that is native to another host, or the file encoding does not match the session encoding. Cross 
+Environment Data Access will be used, which might require additional CPU resources and might reduce performance.
+INFO: Data file DATA.CLAIMS2016.DATA is in a format that is native to another host, or the file encoding does not match the session encoding. Cross 
+Environment Data Access will be used, which might require additional CPU resources and might reduce performance.
+INFO: Data file DATA.CLAIMS2017.DATA is in a format that is native to another host, or the file encoding does not match the session encoding. Cross 
+Environment Data Access will be used, which might require additional CPU resources and might reduce performance.
+18         	array icd [*] $ icd_dx1-icd_dx10;
+19         	array icd9 [*] icd9dx1-icd9dx10;
+20         	array icd10 [*] icd10dx1-icd10dx10;
+21         	
+22         	do i=1 to dim(icd);
+23         		if icd9[i] ne "" then icd[i]=compress(icd9[i],".");
+24         		if icd10[i] ne "" then icd[i]=compress(icd10[i],".");
+25         	end;
+26         	
+27         	if icd_dx1="331" then icd_dx1="3310";
+28         	
+29         	rename claim_dt=date;
+30         	
+31         	* Adding synthetic birth dates;
+32         	if bene_id=3 then death_date=mdy(8,1,2014);
+33         	if bene_id=0 then death_date=mdy(4,1,2017);
+34         	if bene_id=1 then death_date=mdy(2,1,2016);
+35         	if bene_id=2 then death_date=.;
+36         	format death_date mmddyy10.;
+37         	
+38         	drop icd9: icd10: claim_type i;
+39         run;
+
+NOTE: There were 2 observations read from the data set DATA.CLAIMS2014.
+NOTE: There were 1 observations read from the data set DATA.CLAIMS2015.
+NOTE: There were 3 observations read from the data set DATA.CLAIMS2016.
+NOTE: There were 5 observations read from the data set DATA.CLAIMS2017.
+NOTE: The data set DATA.INPUTCLAIMS has 11 observations and 13 variables.
+NOTE: Compressing data set DATA.INPUTCLAIMS increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: DATA statement used (Total process time):
+      real time           0.26 seconds
+      cpu time            0.02 seconds
+      
+
+40         
+41         proc print data=data.inputclaims; run;
+
+NOTE: There were 11 observations read from the data set DATA.INPUTCLAIMS.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.01 seconds
+      
+
+42         	
+43         proc print data=data.dem2014;
+
+NOTE: There were 3 observations read from the data set DATA.DEM2014.
+NOTE: The PROCEDURE PRINT printed page 2.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+44         proc print data=data.dem2015;
+
+NOTE: There were 3 observations read from the data set DATA.DEM2015.
+NOTE: The PROCEDURE PRINT printed page 3.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+45         proc print data=data.dem2016;
+
+NOTE: There were 3 observations read from the data set DATA.DEM2016.
+NOTE: The PROCEDURE PRINT printed page 4.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+46         proc print data=data.dem2017; run;
+ERROR: File DATA.DEM2017.DATA does not exist.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+47         	
+
+
+ERROR: Errors printed on page 1.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           1.06 seconds
+      cpu time            0.05 seconds
+      

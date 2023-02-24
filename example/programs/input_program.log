@@ -1,0 +1,987 @@
+1                                                          The SAS System                           11:11 Tuesday, February 21, 2023
+
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M6) 
+      Licensed to UNIVERSITY OF SOUTHERN CALIFORNIA-SFA-T&R, Site 70095270.
+NOTE: This session is executing on the Linux 3.10.0-693.21.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Analytical products:
+      
+      SAS/STAT 15.1
+      SAS/ETS 15.1
+      SAS/OR 15.1
+      SAS/IML 15.1
+      SAS/QC 15.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-693.21.1.el7.x86_64 #1 SMP Fri Feb 23 18:54:16 UTC 2018 x86_64 Red Hat Enterprise Linux Server release 7.4 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.46 seconds
+      cpu time            0.02 seconds
+      
+1          /*********************************************************************************************/
+2          title1 'Dementia Algorithm';
+3          
+4          * Author: PF;
+5          * Purpose: Houses all the input macro variables and runs all programs related to the dementia algorithm;
+6          
+7          options compress=yes nocenter ls=150 ps=200 errors=5 mprint merror
+8          	mergenoby=warn varlenchk=error dkricond=error dkrocond=error msglevel=i;
+9          /*********************************************************************************************/
+10         
+11         ************** Set up libnames - optional;
+12         
+13         libname data "/schaeffer-a/sch-projects/public-data-projects/USERS/pferido/Verified_Dementia_Package/data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /schaeffer-a/sch-projects/public-data-projects/USERS/pferido/Verified_Dementia_Package/data
+14         
+15         /********************************************************************************************
+16         Macro Variables - Information needed for macro below
+17         * PROJHOME: project filepath to the folder
+18         * ID: name of the unique patient identifier
+19         * MINYEAR: start year of data
+20         * MAXYEAR: end year of data (should be last two years to allow for )
+21         * DXCLAIMS: names of the diagnosis claims data to process. If multiple, separate by a space
+22         * VYR: 1/2, 1- Verify dx in 1 year, 2 - Verify dx in 2 years (default)
+23         * OUTPREFIX: desired prefix for annual output data sets, output will be &outprefix.[yr] and &outprefix.[yr]_censor
+24         		if not enough time for full verification
+25         * USERX: Y/N, Y - use drug data (default), N - don't use drug data
+26         	* If Y, then define the following variables:
+27         		* RXCLAIMS: name of drug claims data to process. If multiple, separate by a space
+28         		* HASGNN - Y/N, Y - Data has GNN, don't use NDC (default), N - Data does not have GNN, use NDC
+29         ********************************************************************************************/
+30         
+31         ****** Wrapper macro;
+32         %include "demv_wrap.sas";
+166        
+167        ****** Macro Function - please fill in with above information;
+168        %demv(projhome=/schaeffer-a/sch-projects/public-data-projects/USERS/pferido/Verified_Dementia_Package,
+169        	  id=bene_id,
+170        	  minyear=2014,
+171        	  maxyear=2017,
+172        	  dxclaims=data.inputclaims,
+173        	  vyear=1,
+174        	  outprefix=data.dem,
+175        	  userx=N,
+176        	  rxclaims=,
+177        	  hasgnn=);
+MPRINT(DEMV):   data _null_;
+MPRINT(DEMV):   if "/schaeffer-a/sch-projects/public-data-projects/USERS/pferido/Verified_Dementia_Package"="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out projhome";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "bene_id"="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out ID";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "2014"="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out minyear";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "2017"="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out maxyear";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "data.inputclaims"="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out dxclaims";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "1"="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out vyear or remove the macro variable to use default (2)";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if 1 not in(1,2) then do;
+MPRINT(DEMV):   put "ERROR: vyear is an invalid value. Must be 1 or 2";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "data.dem"="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out outprefix";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "N" not in("Y","N") then do;
+MPRINT(DEMV):   put "ERROR: Userx is not a valid value, must be Y or N";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "N"="Y" then do;
+MPRINT(DEMV):   if ""="" then do;
+MPRINT(DEMV):   put "ERROR: Fill out rxclaims";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if "" not in("Y","N") then do;
+MPRINT(DEMV):   put "ERROR: Hasgnn is not a valid vlue, must be Y or N";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   run;
+
+NOTE: DATA statement used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.00 seconds
+      
+
+MPRINT(DEMV):   * Set vtime to 365 days if vyear is 1 and 730 if vyear is 2;
+MPRINT(DEMV):   title1 'Dementia Algorithm';
+MPRINT(DEMV):   * Author: PF;
+MPRINT(DEMV):   * Purpose: Identify dementia and dementia symptom claims. See Techincal Documentation for definition;
+MPRINT(DEMV):   * Input: Requires input claims dataset with following variables: - unique patient identifier - icd_dx[i] - date - death_dt ;
+MPRINT(DEMV):   * Output: Dementia dx claims;
+MPRINT(DEMV):   options compress=yes nocenter ls=150 ps=200 errors=5 mprint merror mergenoby=warn varlenchk=error dkricond=error dkrocond=error 
+msglevel=i;
+MPRINT(DEMV):   options obs=max;
+MPRINT(DEMV):   * Bring in CSV with codes;
+MPRINT(DEMV):   data icd;
+MPRINT(DEMV):   infile "../csv_input/icdcodes.csv" dsd dlm="2c"x lrecl=32767 missover firstobs=2;
+MPRINT(DEMV):   informat cond $4. type $8. code $7. desc $70.;
+MPRINT(DEMV):   format cond $4. type $8. code $7. desc $70.;
+MPRINT(DEMV):   input cond type code desc ;
+MPRINT(DEMV):   run;
+
+NOTE: The infile "../csv_input/icdcodes.csv" is:
+      Filename=/schaeffer-a/sch-projects/public-data-projects/USERS/pferido/Verified_Dementia_Package/csv_input/icdcodes.csv,
+      Owner Name=pferido,Group Name=schaef-users,
+      Access Permission=-rw-r--r--,
+      Last Modified=03Feb2023:08:55:00,
+      File Size (bytes)=2928
+
+NOTE: 56 records were read from the infile "../csv_input/icdcodes.csv".
+      The minimum record length was 24.
+      The maximum record length was 72.
+NOTE: The data set WORK.ICD has 56 observations and 4 variables.
+NOTE: Compressing data set WORK.ICD increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.01 seconds
+      
+
+MPRINT(DEMV):   * Create macro variable lists to flag;
+MPRINT(DEMV):   proc sql;
+MPRINT(DEMV):   * Dementia dx ICD-9;
+MPRINT(DEMV):   select code into :icd9dem separated by '","' from icd where type="ICD9DX" and cond="dem";
+MPRINT(DEMV):   * Dementia dx ICD-10;
+MPRINT(DEMV):   select code into :icd10dem separated by '","' from icd where type="ICD10DX" and cond="dem";
+MPRINT(DEMV):   * Symptom dx ICD-9;
+MPRINT(DEMV):   select code into :icd9symp separated by '","' from icd where type="ICD9DX" and cond="symp";
+MPRINT(DEMV):   * Symptom dx ICD-10;
+MPRINT(DEMV):   select code into :icd10symp separated by '","' from icd where type="ICD10DX" and cond="symp";
+MPRINT(DEMV):   quit;
+NOTE: The PROCEDURE SQL printed pages 1-4.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.19 seconds
+      cpu time            0.01 seconds
+      
+
+"2900","29010","29011","29012","29013","29020","29021","2903","29040","29041","29042","29043","2940","29410","29411","29420","29421","2948","3310","33
+111","33119","3312","3317","797","33182"
+"G300","G301","G308","G309","F0150","F0151","F0280","F0281","F0390","F0391","F05","G138","G3101","G3109","G311","G312","G3183","G94","R4181"
+2 The SAS System                                                                                                      11:11 Tuesday, February 21, 2023
+
+"78093","7843","78469","33183"
+"R411","R412","R413","R4701","R481","R482","R488","G3184"
+MPRINT(DEMV):   * Flag dementia claims in input claims dataset and make it date level;
+Number of Input Claims data sets: 1
+MPRINT(PULLDX):   data dx1;
+MPRINT(PULLDX):   set data.inputclaims;
+MPRINT(PULLDX):   array icd [*] icd_dx:;
+MPRINT(PULLDX):   dem=0;
+MPRINT(PULLDX):   symp=0;
+MPRINT(PULLDX):   do i=1 to dim(icd) while(dem=0 or symp=0);
+MPRINT(PULLDX):   if icd[i] 
+in("2900","29010","29011","29012","29013","29020","29021","2903","29040","29041","29042","29043","2940","29410","29411","29420","29421","2948","3310",
+"33111","33119","3312","3317","797","33182","G300","G301","G308","G309","F0150","F0151","F0280","F0281","F0390","F0391","F05","G138","G3101","G3109","
+G311","G312","G3183","G94","R4181") then dem=1;
+MPRINT(PULLDX):   if icd[i] in("78093","7843","78469","33183","R411","R412","R413","R4701","R481","R482","R488","G3184") then symp=1;
+MPRINT(PULLDX):   end;
+MPRINT(PULLDX):   year=year(date);
+MPRINT(PULLDX):   if dem or symp;
+MPRINT(PULLDX):   run;
+
+NOTE: There were 11 observations read from the data set DATA.INPUTCLAIMS.
+NOTE: The data set WORK.DX1 has 4 observations and 17 variables.
+NOTE: Compressing data set WORK.DX1 increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+MPRINT(PULLDX):   proc sort data=dx1 out=dx_s1;
+MPRINT(PULLDX):   by bene_id year date;
+MPRINT(PULLDX):   run;
+
+NOTE: There were 4 observations read from the data set WORK.DX1.
+NOTE: SAS sort was used.
+NOTE: The data set WORK.DX_S1 has 4 observations and 17 variables.
+NOTE: Compressing data set WORK.DX_S1 increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.21 seconds
+      cpu time            0.01 seconds
+      
+
+MPRINT(PULLDX):   *stack;
+MPRINT(PULLDX):   data dxdt;
+MPRINT(PULLDX):   set dx_s1;
+MPRINT(PULLDX):   by bene_id year date;
+MPRINT(PULLDX):   * initialize dx and symp flags;
+MPRINT(PULLDX):   if first.date then do;
+MPRINT(PULLDX):   demdx=0;
+MPRINT(PULLDX):   sympdx=0;
+MPRINT(PULLDX):   end;
+MPRINT(PULLDX):   retain demdx sympdx;
+MPRINT(PULLDX):   if dem=1 then demdx=1;
+MPRINT(PULLDX):   if symp=1 then sympdx=1;
+MPRINT(PULLDX):   if last.date;
+MPRINT(PULLDX):   keep bene_id year date demdx sympdx death_date;
+MPRINT(PULLDX):   run;
+
+NOTE: There were 4 observations read from the data set WORK.DX_S1.
+NOTE: The data set WORK.DXDT has 4 observations and 6 variables.
+NOTE: Compressing data set WORK.DXDT increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: DATA statement used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.00 seconds
+      
+
+MPRINT(DEMV):  ;
+MPRINT(DEMV):   ;
+MPRINT(DEMV):   * Merge together the drugs and claims data;
+MPRINT(DEMV):   data claims;
+MPRINT(DEMV):  ;
+MPRINT(DEMV):   set dxdt;
+MPRINT(DEMV):   by bene_id year date;
+MPRINT(DEMV):   if demdx=. then demdx=0;
+MPRINT(DEMV):   if sympdx=. then sympdx=0;
+MPRINT(DEMV):  ;
+MPRINT(DEMV):   year=year(date);
+MPRINT(DEMV):   run;
+
+NOTE: There were 4 observations read from the data set WORK.DXDT.
+NOTE: The data set WORK.CLAIMS has 4 observations and 6 variables.
+NOTE: Compressing data set WORK.CLAIMS increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+MPRINT(DEMV):   * Get years of censored data;
+MPRINT(DEMV):   proc freq data=claims noprint;
+MPRINT(DEMV):   table year / out=yr;
+MPRINT(DEMV):   run;
+
+NOTE: Compression was disabled for data set WORK.YR because compression overhead would increase the size of the data set.
+NOTE: There were 4 observations read from the data set WORK.CLAIMS.
+NOTE: The data set WORK.YR has 3 observations and 3 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.29 seconds
+      cpu time            0.00 seconds
+      
+
+MPRINT(DEMV):   proc sql noprint;
+MPRINT(DEMV):   select min(year) into :mindatayear from yr;
+MPRINT(DEMV):   select max(year) into :maxdatayear from yr;
+MPRINT(DEMV):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+First Year of Dementia Data:     2014
+Last Year of Dementia Data:     2017
+First Year with Censorship with 1-Year Verification Window: 2017
+MPRINT(DEMV):   data _null_;
+MPRINT(DEMV):   * Checks;
+MPRINT(DEMV):   if 2014>2014 then do;
+MPRINT(DEMV):   put "ERROR: Provided data starts after specified minyear";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if 2017<2017 then do;
+MPRINT(DEMV):   put "ERROR: Provided data ends before specified maxyear";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   if 2017<=2014 then do;
+MPRINT(DEMV):   put "ERROR: All data will have censoring. Not enough data provided for 1-Year Verification window";
+MPRINT(DEMV):   abort;
+MPRINT(DEMV):   end;
+MPRINT(DEMV):   run;
+
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+Censoring (1-Yes,0-No): 1
+MPRINT(DEMV):   data _null_;
+MPRINT(DEMV):   time=mdy(12,31, 2017)-mdy(1,1, 2014)+1;
+MPRINT(DEMV):   call symput('time',time);
+MPRINT(DEMV):   run;
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      309:93   
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+1461
+MPRINT(DEMV):   title1 'Dementia Algorithm';
+MPRINT(DEMV):   * Author: PF;
+MPRINT(DEMV):   * Purpose: Run verification algorithm;
+MPRINT(DEMV):   * Input: Requires correct macro variables and processed claims;
+MPRINT(DEMV):   * Output: Annual datasets with verified dementia dates;
+MPRINT(DEMV):   options compress=yes nocenter ls=150 ps=200 errors=5 mprint merror mergenoby=warn varlenchk=error dkricond=error dkrocond=error 
+msglevel=i;
+MPRINT(VERIFY):   data demv_long;
+MPRINT(VERIFY):   set claims;
+MPRINT(VERIFY):   by bene_id year date;
+MPRINT(VERIFY):   * Scenario 1: Two records of AD Diagnosis;
+MPRINT(VERIFY):   retain scen_dx_dt2014 scen_dx_vtime2014 scen_dx_dx2dt2014 scen_dx_dttype2014 scen_dx_vtype2014 scen_dx_vdt2014 ;
+MPRINT(VERIFY):   format scen_dx_dt2014 scen_dx_vdt2014 scen_dx_dx2dt2014 mmddyy10. scen_dx_dttype2014 scen_dx_vtype2014 $4.;
+MPRINT(VERIFY):   if (first.year and year=2014) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dx_dt2014=.;
+MPRINT(VERIFY):   scen_dx_dttype2014="";
+MPRINT(VERIFY):   scen_dx_vtype2014="";
+MPRINT(VERIFY):   scen_dx_vtime2014=.;
+MPRINT(VERIFY):   scen_dx_dx2dt2014=.;
+MPRINT(VERIFY):   scen_dx_vdt2014=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if year>=2014 then do;
+MPRINT(VERIFY):   if demdx=1 then do;
+MPRINT(VERIFY):   if scen_dx_dt2014=. and .<date-scen_dx_dx2dt2014<=365 then do;
+MPRINT(VERIFY):   scen_dx_dt2014=scen_dx_dx2dt2014;
+MPRINT(VERIFY):   scen_dx_vdt2014=date;
+MPRINT(VERIFY):   scen_dx_vtime2014=date-scen_dx_dt2014;
+MPRINT(VERIFY):   scen_dx_dttype2014="1";
+MPRINT(VERIFY):   scen_dx_vtype2014="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else if scen_dx_dt2014=. and year(date)=2014 then scen_dx_dx2dt2014=date;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain scen_dx_dt2015 scen_dx_vtime2015 scen_dx_dx2dt2015 scen_dx_dttype2015 scen_dx_vtype2015 scen_dx_vdt2015 ;
+MPRINT(VERIFY):   format scen_dx_dt2015 scen_dx_vdt2015 scen_dx_dx2dt2015 mmddyy10. scen_dx_dttype2015 scen_dx_vtype2015 $4.;
+MPRINT(VERIFY):   if (first.year and year=2015) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dx_dt2015=.;
+MPRINT(VERIFY):   scen_dx_dttype2015="";
+MPRINT(VERIFY):   scen_dx_vtype2015="";
+MPRINT(VERIFY):   scen_dx_vtime2015=.;
+MPRINT(VERIFY):   scen_dx_dx2dt2015=.;
+MPRINT(VERIFY):   scen_dx_vdt2015=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if year>=2015 then do;
+MPRINT(VERIFY):   if demdx=1 then do;
+MPRINT(VERIFY):   if scen_dx_dt2015=. and .<date-scen_dx_dx2dt2015<=365 then do;
+MPRINT(VERIFY):   scen_dx_dt2015=scen_dx_dx2dt2015;
+MPRINT(VERIFY):   scen_dx_vdt2015=date;
+3 The SAS System                                                                                                      11:11 Tuesday, February 21, 2023
+
+MPRINT(VERIFY):   scen_dx_vtime2015=date-scen_dx_dt2015;
+MPRINT(VERIFY):   scen_dx_dttype2015="1";
+MPRINT(VERIFY):   scen_dx_vtype2015="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else if scen_dx_dt2015=. and year(date)=2015 then scen_dx_dx2dt2015=date;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain scen_dx_dt2016 scen_dx_vtime2016 scen_dx_dx2dt2016 scen_dx_dttype2016 scen_dx_vtype2016 scen_dx_vdt2016 ;
+MPRINT(VERIFY):   format scen_dx_dt2016 scen_dx_vdt2016 scen_dx_dx2dt2016 mmddyy10. scen_dx_dttype2016 scen_dx_vtype2016 $4.;
+MPRINT(VERIFY):   if (first.year and year=2016) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dx_dt2016=.;
+MPRINT(VERIFY):   scen_dx_dttype2016="";
+MPRINT(VERIFY):   scen_dx_vtype2016="";
+MPRINT(VERIFY):   scen_dx_vtime2016=.;
+MPRINT(VERIFY):   scen_dx_dx2dt2016=.;
+MPRINT(VERIFY):   scen_dx_vdt2016=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if year>=2016 then do;
+MPRINT(VERIFY):   if demdx=1 then do;
+MPRINT(VERIFY):   if scen_dx_dt2016=. and .<date-scen_dx_dx2dt2016<=365 then do;
+MPRINT(VERIFY):   scen_dx_dt2016=scen_dx_dx2dt2016;
+MPRINT(VERIFY):   scen_dx_vdt2016=date;
+MPRINT(VERIFY):   scen_dx_vtime2016=date-scen_dx_dt2016;
+MPRINT(VERIFY):   scen_dx_dttype2016="1";
+MPRINT(VERIFY):   scen_dx_vtype2016="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else if scen_dx_dt2016=. and year(date)=2016 then scen_dx_dx2dt2016=date;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain scen_dx_dt2017 scen_dx_vtime2017 scen_dx_dx2dt2017 scen_dx_dttype2017 scen_dx_vtype2017 scen_dx_vdt2017 ;
+MPRINT(VERIFY):   format scen_dx_dt2017 scen_dx_vdt2017 scen_dx_dx2dt2017 mmddyy10. scen_dx_dttype2017 scen_dx_vtype2017 $4.;
+MPRINT(VERIFY):   if (first.year and year=2017) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dx_dt2017=.;
+MPRINT(VERIFY):   scen_dx_dttype2017="";
+MPRINT(VERIFY):   scen_dx_vtype2017="";
+MPRINT(VERIFY):   scen_dx_vtime2017=.;
+MPRINT(VERIFY):   scen_dx_dx2dt2017=.;
+MPRINT(VERIFY):   scen_dx_vdt2017=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if year>=2017 then do;
+MPRINT(VERIFY):   if demdx=1 then do;
+MPRINT(VERIFY):   if scen_dx_dt2017=. and .<date-scen_dx_dx2dt2017<=365 then do;
+MPRINT(VERIFY):   scen_dx_dt2017=scen_dx_dx2dt2017;
+MPRINT(VERIFY):   scen_dx_vdt2017=date;
+MPRINT(VERIFY):   scen_dx_vtime2017=date-scen_dx_dt2017;
+MPRINT(VERIFY):   scen_dx_dttype2017="1";
+MPRINT(VERIFY):   scen_dx_vtype2017="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else if scen_dx_dt2017=. and year(date)=2017 then scen_dx_dx2dt2017=date;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   * Death scenarios;
+MPRINT(VERIFY):   if (first.year and year=2014) or first.bene_id then do;
+MPRINT(VERIFY):   death_dx2014=.;
+MPRINT(VERIFY):   death_dx_type2014="    ";
+MPRINT(VERIFY):   death_dx_vtime2014=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dx2014 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2014 then do;
+MPRINT(VERIFY):   if death_dx2014=. and demdx and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dx2014=date;
+MPRINT(VERIFY):   death_dx_vtime2014=death_date-date;
+MPRINT(VERIFY):   death_dx_type2014="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2015) or first.bene_id then do;
+MPRINT(VERIFY):   death_dx2015=.;
+MPRINT(VERIFY):   death_dx_type2015="    ";
+MPRINT(VERIFY):   death_dx_vtime2015=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dx2015 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2015 then do;
+MPRINT(VERIFY):   if death_dx2015=. and demdx and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dx2015=date;
+MPRINT(VERIFY):   death_dx_vtime2015=death_date-date;
+MPRINT(VERIFY):   death_dx_type2015="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2016) or first.bene_id then do;
+MPRINT(VERIFY):   death_dx2016=.;
+MPRINT(VERIFY):   death_dx_type2016="    ";
+MPRINT(VERIFY):   death_dx_vtime2016=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dx2016 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2016 then do;
+MPRINT(VERIFY):   if death_dx2016=. and demdx and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dx2016=date;
+MPRINT(VERIFY):   death_dx_vtime2016=death_date-date;
+MPRINT(VERIFY):   death_dx_type2016="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2017) or first.bene_id then do;
+MPRINT(VERIFY):   death_dx2017=.;
+MPRINT(VERIFY):   death_dx_type2017="    ";
+MPRINT(VERIFY):   death_dx_vtime2017=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dx2017 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2017 then do;
+MPRINT(VERIFY):   if death_dx2017=. and demdx and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dx2017=date;
+MPRINT(VERIFY):   death_dx_vtime2017=death_date-date;
+MPRINT(VERIFY):   death_dx_type2017="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   * Using death scenario as last resort if missing;
+MPRINT(VERIFY):   if last.bene_id then do;
+MPRINT(VERIFY):   if scen_dx_dt2014=. and death_dx2014 ne . then do;
+MPRINT(VERIFY):   scen_dx_dt2014=death_dx2014;
+MPRINT(VERIFY):   scen_dx_vdt2014=death_date;
+MPRINT(VERIFY):   scen_dx_vtime2014=death_dx_vtime2014;
+MPRINT(VERIFY):   scen_dx_dttype2014=death_dx_type2014;
+MPRINT(VERIFY):   scen_dx_vtype2014="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dx_dt2015=. and death_dx2015 ne . then do;
+MPRINT(VERIFY):   scen_dx_dt2015=death_dx2015;
+MPRINT(VERIFY):   scen_dx_vdt2015=death_date;
+MPRINT(VERIFY):   scen_dx_vtime2015=death_dx_vtime2015;
+MPRINT(VERIFY):   scen_dx_dttype2015=death_dx_type2015;
+MPRINT(VERIFY):   scen_dx_vtype2015="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dx_dt2016=. and death_dx2016 ne . then do;
+MPRINT(VERIFY):   scen_dx_dt2016=death_dx2016;
+MPRINT(VERIFY):   scen_dx_vdt2016=death_date;
+MPRINT(VERIFY):   scen_dx_vtime2016=death_dx_vtime2016;
+MPRINT(VERIFY):   scen_dx_dttype2016=death_dx_type2016;
+MPRINT(VERIFY):   scen_dx_vtype2016="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dx_dt2017=. and death_dx2017 ne . then do;
+MPRINT(VERIFY):   scen_dx_dt2017=death_dx2017;
+MPRINT(VERIFY):   scen_dx_vdt2017=death_date;
+MPRINT(VERIFY):   scen_dx_vtime2017=death_dx_vtime2017;
+MPRINT(VERIFY):   scen_dx_dttype2017=death_dx_type2017;
+MPRINT(VERIFY):   scen_dx_vtype2017="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if .<scen_dx_vtime2014<0 then dropdx2014=1;
+MPRINT(VERIFY):   label scen_dx_dt2014= "ADRD incident date for scenario using only dx" scen_dx_vdt2014= "Date of verification for scenario using 
+only dx" scen_dx_vtime2014= "Verification time for scenario using only dx" scen_dx_dttype2014= "1-incident date is ADRD dx, 2-incident date is drug 
+use, 3-incident date is dem symptom" scen_dx_vtype2014= "1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem 
+symptom, 4-verified by death" ;
+MPRINT(VERIFY):   if .<scen_dx_vtime2015<0 then dropdx2015=1;
+MPRINT(VERIFY):   label scen_dx_dt2015= "ADRD incident date for scenario using only dx" scen_dx_vdt2015= "Date of verification for scenario using 
+only dx" scen_dx_vtime2015= "Verification time for scenario using only dx" scen_dx_dttype2015= "1-incident date is ADRD dx, 2-incident date is drug 
+use, 3-incident date is dem symptom" scen_dx_vtype2015= "1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem 
+symptom, 4-verified by death" ;
+MPRINT(VERIFY):   if .<scen_dx_vtime2016<0 then dropdx2016=1;
+MPRINT(VERIFY):   label scen_dx_dt2016= "ADRD incident date for scenario using only dx" scen_dx_vdt2016= "Date of verification for scenario using 
+only dx" scen_dx_vtime2016= "Verification time for scenario using only dx" scen_dx_dttype2016= "1-incident date is ADRD dx, 2-incident date is drug 
+use, 3-incident date is dem symptom" scen_dx_vtype2016= "1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem 
+symptom, 4-verified by death" ;
+MPRINT(VERIFY):   if .<scen_dx_vtime2017<0 then dropdx2017=1;
+MPRINT(VERIFY):   label scen_dx_dt2017= "ADRD incident date for scenario using only dx" scen_dx_vdt2017= "Date of verification for scenario using 
+only dx" scen_dx_vtime2017= "Verification time for scenario using only dx" scen_dx_dttype2017= "1-incident date is ADRD dx, 2-incident date is drug 
+use, 3-incident date is dem symptom" scen_dx_vtype2017= "1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem 
+symptom, 4-verified by death" ;
+MPRINT(VERIFY):   * Scenario Symp: dx +dx, dx + symp;
+MPRINT(VERIFY):   array scen_dxsymp_dxdt_ [ 1461] _temporary_;
+MPRINT(VERIFY):   array scen_dxsymp_type_ [ 1461] $4. _temporary_;
+MPRINT(VERIFY):   if first.bene_id then do;
+MPRINT(VERIFY):   do i=1 to 1461;
+MPRINT(VERIFY):   scen_dxsymp_dxdt_[i]=.;
+MPRINT(VERIFY):   scen_dxsymp_type_[i]="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   day=date-mdy(1,1, 2014)+1;
+MPRINT(VERIFY):   start=max(1,date-mdy(1,1, 2014)-365+1);
+MPRINT(VERIFY):   end=min(day, 1461);
+MPRINT(VERIFY):   if (demdx or sympdx) and 1<=day<= 1461 then do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt_[day]=date;
+MPRINT(VERIFY):   if demdx then substr(scen_dxsymp_type_[day],1,1)="1";
+MPRINT(VERIFY):   if sympdx then substr(scen_dxsymp_type_[day],3,1)="3";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   *start is capped at start of year;
+MPRINT(VERIFY):   startyr_day=mdy(1,1,2014)-mdy(1,1, 2014)+1;
+MPRINT(VERIFY):   start=max(start,startyr_day);
+MPRINT(VERIFY):   retain scen_dxsymp_dt2014 scen_dxsymp_dxdt2014 scen_dxsymp_dx2dt2014 scen_dxsymp_vdt2014 scen_dxsymp_vtime2014 
+scen_dxsymp_dttype2014 scen_dxsymp_vtype2014 scen_dxsymp_dx2type2014;
+MPRINT(VERIFY):   format scen_dxsymp_dt2014 scen_dxsymp_dxdt2014 scen_dxsymp_dx2dt2014 scen_dxsymp_vdt2014 mmddyy10. scen_dxsymp_dttype2014 
+scen_dxsymp_vtype2014 scen_dxsymp_dx2type2014 $4.;
+MPRINT(VERIFY):   if (first.year and year=2014) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2014=.;
+MPRINT(VERIFY):   scen_dxsymp_vtime2014=.;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2014=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2014=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2014="";
+MPRINT(VERIFY):   scen_dxsymp_vdt2014=.;
+MPRINT(VERIFY):   scen_dxsymp_dttype2014="";
+MPRINT(VERIFY):   scen_dxsymp_vtype2014="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if 2014<=year<=2015 then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2014=. then do;
+MPRINT(VERIFY):   do i=start to end;
+MPRINT(VERIFY):   if (find(scen_dxsymp_type_[i],"1")) and scen_dxsymp_dxdt2014=. then scen_dxsymp_dxdt2014=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   * getting second qualifying;
+4 The SAS System                                                                                                      11:11 Tuesday, February 21, 2023
+
+MPRINT(VERIFY):   if scen_dxsymp_dx2dt2014=. then do;
+MPRINT(VERIFY):   if (scen_dxsymp_type_[i]="1" and scen_dxsymp_dxdt_[i]>scen_dxsymp_dxdt2014) or (find(scen_dxsymp_type_[i],"3")) then do;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2014=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   scen_dxsymp_dx2type2014=scen_dxsymp_type_[i];
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2014 ne . and scen_dxsymp_dx2dt2014 ne . and min(year(scen_dxsymp_dxdt2014),year(scen_dxsymp_dx2dt2014))=2014 
+then do;
+MPRINT(VERIFY):   * ensuring that minimum date is in year, otherwise, keep searching;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2014<=scen_dxsymp_dx2dt2014 then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2014=scen_dxsymp_dxdt2014;
+MPRINT(VERIFY):   scen_dxsymp_vdt2014=scen_dxsymp_dx2dt2014;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2014<scen_dxsymp_dx2dt2014 then substr(scen_dxsymp_dttype2014,1,1)="1";
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2014=scen_dxsymp_dx2dt2014 then scen_dxsymp_dttype2014="1 3";
+MPRINT(VERIFY):   scen_dxsymp_vtype2014=scen_dxsymp_dx2type2014;
+MPRINT(VERIFY):   scen_dxsymp_vtime2014=scen_dxsymp_dx2dt2014-scen_dxsymp_dxdt2014;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (scen_dxsymp_dx2dt2014<scen_dxsymp_dxdt2014) then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2014=scen_dxsymp_dx2dt2014;
+MPRINT(VERIFY):   scen_dxsymp_vdt2014=scen_dxsymp_dxdt2014;
+MPRINT(VERIFY):   scen_dxsymp_dttype2014=scen_dxsymp_dx2type2014;
+MPRINT(VERIFY):   scen_dxsymp_vtype2014="1";
+MPRINT(VERIFY):   scen_dxsymp_vtime2014=scen_dxsymp_dxdt2014-scen_dxsymp_dx2dt2014;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2014=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2014=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2014="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   *start is capped at start of year;
+MPRINT(VERIFY):   startyr_day=mdy(1,1,2015)-mdy(1,1, 2014)+1;
+MPRINT(VERIFY):   start=max(start,startyr_day);
+MPRINT(VERIFY):   retain scen_dxsymp_dt2015 scen_dxsymp_dxdt2015 scen_dxsymp_dx2dt2015 scen_dxsymp_vdt2015 scen_dxsymp_vtime2015 
+scen_dxsymp_dttype2015 scen_dxsymp_vtype2015 scen_dxsymp_dx2type2015;
+MPRINT(VERIFY):   format scen_dxsymp_dt2015 scen_dxsymp_dxdt2015 scen_dxsymp_dx2dt2015 scen_dxsymp_vdt2015 mmddyy10. scen_dxsymp_dttype2015 
+scen_dxsymp_vtype2015 scen_dxsymp_dx2type2015 $4.;
+MPRINT(VERIFY):   if (first.year and year=2015) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2015=.;
+MPRINT(VERIFY):   scen_dxsymp_vtime2015=.;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2015=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2015=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2015="";
+MPRINT(VERIFY):   scen_dxsymp_vdt2015=.;
+MPRINT(VERIFY):   scen_dxsymp_dttype2015="";
+MPRINT(VERIFY):   scen_dxsymp_vtype2015="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if 2015<=year<=2016 then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2015=. then do;
+MPRINT(VERIFY):   do i=start to end;
+MPRINT(VERIFY):   if (find(scen_dxsymp_type_[i],"1")) and scen_dxsymp_dxdt2015=. then scen_dxsymp_dxdt2015=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   * getting second qualifying;
+MPRINT(VERIFY):   if scen_dxsymp_dx2dt2015=. then do;
+MPRINT(VERIFY):   if (scen_dxsymp_type_[i]="1" and scen_dxsymp_dxdt_[i]>scen_dxsymp_dxdt2015) or (find(scen_dxsymp_type_[i],"3")) then do;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2015=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   scen_dxsymp_dx2type2015=scen_dxsymp_type_[i];
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2015 ne . and scen_dxsymp_dx2dt2015 ne . and min(year(scen_dxsymp_dxdt2015),year(scen_dxsymp_dx2dt2015))=2015 
+then do;
+MPRINT(VERIFY):   * ensuring that minimum date is in year, otherwise, keep searching;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2015<=scen_dxsymp_dx2dt2015 then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2015=scen_dxsymp_dxdt2015;
+MPRINT(VERIFY):   scen_dxsymp_vdt2015=scen_dxsymp_dx2dt2015;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2015<scen_dxsymp_dx2dt2015 then substr(scen_dxsymp_dttype2015,1,1)="1";
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2015=scen_dxsymp_dx2dt2015 then scen_dxsymp_dttype2015="1 3";
+MPRINT(VERIFY):   scen_dxsymp_vtype2015=scen_dxsymp_dx2type2015;
+MPRINT(VERIFY):   scen_dxsymp_vtime2015=scen_dxsymp_dx2dt2015-scen_dxsymp_dxdt2015;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (scen_dxsymp_dx2dt2015<scen_dxsymp_dxdt2015) then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2015=scen_dxsymp_dx2dt2015;
+MPRINT(VERIFY):   scen_dxsymp_vdt2015=scen_dxsymp_dxdt2015;
+MPRINT(VERIFY):   scen_dxsymp_dttype2015=scen_dxsymp_dx2type2015;
+MPRINT(VERIFY):   scen_dxsymp_vtype2015="1";
+MPRINT(VERIFY):   scen_dxsymp_vtime2015=scen_dxsymp_dxdt2015-scen_dxsymp_dx2dt2015;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2015=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2015=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2015="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   *start is capped at start of year;
+MPRINT(VERIFY):   startyr_day=mdy(1,1,2016)-mdy(1,1, 2014)+1;
+MPRINT(VERIFY):   start=max(start,startyr_day);
+MPRINT(VERIFY):   retain scen_dxsymp_dt2016 scen_dxsymp_dxdt2016 scen_dxsymp_dx2dt2016 scen_dxsymp_vdt2016 scen_dxsymp_vtime2016 
+scen_dxsymp_dttype2016 scen_dxsymp_vtype2016 scen_dxsymp_dx2type2016;
+MPRINT(VERIFY):   format scen_dxsymp_dt2016 scen_dxsymp_dxdt2016 scen_dxsymp_dx2dt2016 scen_dxsymp_vdt2016 mmddyy10. scen_dxsymp_dttype2016 
+scen_dxsymp_vtype2016 scen_dxsymp_dx2type2016 $4.;
+MPRINT(VERIFY):   if (first.year and year=2016) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2016=.;
+MPRINT(VERIFY):   scen_dxsymp_vtime2016=.;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2016=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2016=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2016="";
+MPRINT(VERIFY):   scen_dxsymp_vdt2016=.;
+MPRINT(VERIFY):   scen_dxsymp_dttype2016="";
+MPRINT(VERIFY):   scen_dxsymp_vtype2016="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if 2016<=year<=2017 then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2016=. then do;
+MPRINT(VERIFY):   do i=start to end;
+MPRINT(VERIFY):   if (find(scen_dxsymp_type_[i],"1")) and scen_dxsymp_dxdt2016=. then scen_dxsymp_dxdt2016=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   * getting second qualifying;
+MPRINT(VERIFY):   if scen_dxsymp_dx2dt2016=. then do;
+MPRINT(VERIFY):   if (scen_dxsymp_type_[i]="1" and scen_dxsymp_dxdt_[i]>scen_dxsymp_dxdt2016) or (find(scen_dxsymp_type_[i],"3")) then do;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2016=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   scen_dxsymp_dx2type2016=scen_dxsymp_type_[i];
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2016 ne . and scen_dxsymp_dx2dt2016 ne . and min(year(scen_dxsymp_dxdt2016),year(scen_dxsymp_dx2dt2016))=2016 
+then do;
+MPRINT(VERIFY):   * ensuring that minimum date is in year, otherwise, keep searching;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2016<=scen_dxsymp_dx2dt2016 then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2016=scen_dxsymp_dxdt2016;
+MPRINT(VERIFY):   scen_dxsymp_vdt2016=scen_dxsymp_dx2dt2016;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2016<scen_dxsymp_dx2dt2016 then substr(scen_dxsymp_dttype2016,1,1)="1";
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2016=scen_dxsymp_dx2dt2016 then scen_dxsymp_dttype2016="1 3";
+MPRINT(VERIFY):   scen_dxsymp_vtype2016=scen_dxsymp_dx2type2016;
+MPRINT(VERIFY):   scen_dxsymp_vtime2016=scen_dxsymp_dx2dt2016-scen_dxsymp_dxdt2016;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (scen_dxsymp_dx2dt2016<scen_dxsymp_dxdt2016) then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2016=scen_dxsymp_dx2dt2016;
+MPRINT(VERIFY):   scen_dxsymp_vdt2016=scen_dxsymp_dxdt2016;
+MPRINT(VERIFY):   scen_dxsymp_dttype2016=scen_dxsymp_dx2type2016;
+MPRINT(VERIFY):   scen_dxsymp_vtype2016="1";
+MPRINT(VERIFY):   scen_dxsymp_vtime2016=scen_dxsymp_dxdt2016-scen_dxsymp_dx2dt2016;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2016=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2016=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2016="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   *start is capped at start of year;
+MPRINT(VERIFY):   startyr_day=mdy(1,1,2017)-mdy(1,1, 2014)+1;
+MPRINT(VERIFY):   start=max(start,startyr_day);
+MPRINT(VERIFY):   retain scen_dxsymp_dt2017 scen_dxsymp_dxdt2017 scen_dxsymp_dx2dt2017 scen_dxsymp_vdt2017 scen_dxsymp_vtime2017 
+scen_dxsymp_dttype2017 scen_dxsymp_vtype2017 scen_dxsymp_dx2type2017;
+MPRINT(VERIFY):   format scen_dxsymp_dt2017 scen_dxsymp_dxdt2017 scen_dxsymp_dx2dt2017 scen_dxsymp_vdt2017 mmddyy10. scen_dxsymp_dttype2017 
+scen_dxsymp_vtype2017 scen_dxsymp_dx2type2017 $4.;
+MPRINT(VERIFY):   if (first.year and year=2017) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2017=.;
+MPRINT(VERIFY):   scen_dxsymp_vtime2017=.;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2017=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2017=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2017="";
+MPRINT(VERIFY):   scen_dxsymp_vdt2017=.;
+MPRINT(VERIFY):   scen_dxsymp_dttype2017="";
+MPRINT(VERIFY):   scen_dxsymp_vtype2017="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if 2017<=year<=2018 then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2017=. then do;
+MPRINT(VERIFY):   do i=start to end;
+MPRINT(VERIFY):   if (find(scen_dxsymp_type_[i],"1")) and scen_dxsymp_dxdt2017=. then scen_dxsymp_dxdt2017=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   * getting second qualifying;
+MPRINT(VERIFY):   if scen_dxsymp_dx2dt2017=. then do;
+MPRINT(VERIFY):   if (scen_dxsymp_type_[i]="1" and scen_dxsymp_dxdt_[i]>scen_dxsymp_dxdt2017) or (find(scen_dxsymp_type_[i],"3")) then do;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2017=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   scen_dxsymp_dx2type2017=scen_dxsymp_type_[i];
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2017 ne . and scen_dxsymp_dx2dt2017 ne . and min(year(scen_dxsymp_dxdt2017),year(scen_dxsymp_dx2dt2017))=2017 
+then do;
+MPRINT(VERIFY):   * ensuring that minimum date is in year, otherwise, keep searching;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2017<=scen_dxsymp_dx2dt2017 then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2017=scen_dxsymp_dxdt2017;
+MPRINT(VERIFY):   scen_dxsymp_vdt2017=scen_dxsymp_dx2dt2017;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2017<scen_dxsymp_dx2dt2017 then substr(scen_dxsymp_dttype2017,1,1)="1";
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2017=scen_dxsymp_dx2dt2017 then scen_dxsymp_dttype2017="1 3";
+MPRINT(VERIFY):   scen_dxsymp_vtype2017=scen_dxsymp_dx2type2017;
+MPRINT(VERIFY):   scen_dxsymp_vtime2017=scen_dxsymp_dx2dt2017-scen_dxsymp_dxdt2017;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (scen_dxsymp_dx2dt2017<scen_dxsymp_dxdt2017) then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2017=scen_dxsymp_dx2dt2017;
+MPRINT(VERIFY):   scen_dxsymp_vdt2017=scen_dxsymp_dxdt2017;
+MPRINT(VERIFY):   scen_dxsymp_dttype2017=scen_dxsymp_dx2type2017;
+MPRINT(VERIFY):   scen_dxsymp_vtype2017="1";
+MPRINT(VERIFY):   scen_dxsymp_vtime2017=scen_dxsymp_dxdt2017-scen_dxsymp_dx2dt2017;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2017=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2017=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2017="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+5 The SAS System                                                                                                      11:11 Tuesday, February 21, 2023
+
+MPRINT(VERIFY):   * Death scenarios;
+MPRINT(VERIFY):   if (first.year and year=2014) or first.bene_id then do;
+MPRINT(VERIFY):   death_dxsymp2014=.;
+MPRINT(VERIFY):   death_dxsymp_type2014="    ";
+MPRINT(VERIFY):   death_dxsymp_v2014=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dxsymp2014 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2014 then do;
+MPRINT(VERIFY):   if death_dxsymp2014=. and (demdx) and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dxsymp2014=date;
+MPRINT(VERIFY):   death_dxsymp_vtime2014=death_date-date;
+MPRINT(VERIFY):   if demdx then substr(death_dxsymp_type2014,1,1)="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2015) or first.bene_id then do;
+MPRINT(VERIFY):   death_dxsymp2015=.;
+MPRINT(VERIFY):   death_dxsymp_type2015="    ";
+MPRINT(VERIFY):   death_dxsymp_v2015=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dxsymp2015 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2015 then do;
+MPRINT(VERIFY):   if death_dxsymp2015=. and (demdx) and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dxsymp2015=date;
+MPRINT(VERIFY):   death_dxsymp_vtime2015=death_date-date;
+MPRINT(VERIFY):   if demdx then substr(death_dxsymp_type2015,1,1)="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2016) or first.bene_id then do;
+MPRINT(VERIFY):   death_dxsymp2016=.;
+MPRINT(VERIFY):   death_dxsymp_type2016="    ";
+MPRINT(VERIFY):   death_dxsymp_v2016=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dxsymp2016 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2016 then do;
+MPRINT(VERIFY):   if death_dxsymp2016=. and (demdx) and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dxsymp2016=date;
+MPRINT(VERIFY):   death_dxsymp_vtime2016=death_date-date;
+MPRINT(VERIFY):   if demdx then substr(death_dxsymp_type2016,1,1)="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2017) or first.bene_id then do;
+MPRINT(VERIFY):   death_dxsymp2017=.;
+MPRINT(VERIFY):   death_dxsymp_type2017="    ";
+MPRINT(VERIFY):   death_dxsymp_v2017=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dxsymp2017 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2017 then do;
+MPRINT(VERIFY):   if death_dxsymp2017=. and (demdx) and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dxsymp2017=date;
+MPRINT(VERIFY):   death_dxsymp_vtime2017=death_date-date;
+MPRINT(VERIFY):   if demdx then substr(death_dxsymp_type2017,1,1)="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   * Using death scenario as last resort if missing;
+MPRINT(VERIFY):   if last.bene_id then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2014=. and death_dxsymp2014 ne . then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2014=death_dxsymp2014;
+MPRINT(VERIFY):   scen_dxsymp_vdt2014=death_date;
+MPRINT(VERIFY):   scen_dxsymp_vtime2014=death_dxsymp_vtime2014;
+MPRINT(VERIFY):   scen_dxsymp_dttype2014=death_dxsymp_type2014;
+MPRINT(VERIFY):   scen_dxsymp_vtype2014="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dt2015=. and death_dxsymp2015 ne . then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2015=death_dxsymp2015;
+MPRINT(VERIFY):   scen_dxsymp_vdt2015=death_date;
+MPRINT(VERIFY):   scen_dxsymp_vtime2015=death_dxsymp_vtime2015;
+MPRINT(VERIFY):   scen_dxsymp_dttype2015=death_dxsymp_type2015;
+MPRINT(VERIFY):   scen_dxsymp_vtype2015="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dt2016=. and death_dxsymp2016 ne . then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2016=death_dxsymp2016;
+MPRINT(VERIFY):   scen_dxsymp_vdt2016=death_date;
+MPRINT(VERIFY):   scen_dxsymp_vtime2016=death_dxsymp_vtime2016;
+MPRINT(VERIFY):   scen_dxsymp_dttype2016=death_dxsymp_type2016;
+MPRINT(VERIFY):   scen_dxsymp_vtype2016="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dt2017=. and death_dxsymp2017 ne . then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2017=death_dxsymp2017;
+MPRINT(VERIFY):   scen_dxsymp_vdt2017=death_date;
+MPRINT(VERIFY):   scen_dxsymp_vtime2017=death_dxsymp_vtime2017;
+MPRINT(VERIFY):   scen_dxsymp_dttype2017=death_dxsymp_type2017;
+MPRINT(VERIFY):   scen_dxsymp_vtype2017="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if .<scen_dxsymp_vtime2014<0 then dropdxsymp2014=1;
+MPRINT(VERIFY):   label scen_dxsymp_dt2014= "ADRD incident date for scenario using dx and symptoms" scen_dxsymp_vdt2014= "Date of verification for 
+scenario using dx and symptoms" scen_dxsymp_vtime2014= "Verification time for scenario using dx and symptoms" scen_dxsymp_dttype2014= "1-incident 
+date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom" scen_dxsymp_vtype2014= "1-verification date is ADRD dx, 2-verification 
+date is drug use, 3-verification date is dem symptom, 4-verified by death" ;
+MPRINT(VERIFY):   if .<scen_dxsymp_vtime2015<0 then dropdxsymp2015=1;
+MPRINT(VERIFY):   label scen_dxsymp_dt2015= "ADRD incident date for scenario using dx and symptoms" scen_dxsymp_vdt2015= "Date of verification for 
+scenario using dx and symptoms" scen_dxsymp_vtime2015= "Verification time for scenario using dx and symptoms" scen_dxsymp_dttype2015= "1-incident 
+date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom" scen_dxsymp_vtype2015= "1-verification date is ADRD dx, 2-verification 
+date is drug use, 3-verification date is dem symptom, 4-verified by death" ;
+MPRINT(VERIFY):   if .<scen_dxsymp_vtime2016<0 then dropdxsymp2016=1;
+MPRINT(VERIFY):   label scen_dxsymp_dt2016= "ADRD incident date for scenario using dx and symptoms" scen_dxsymp_vdt2016= "Date of verification for 
+scenario using dx and symptoms" scen_dxsymp_vtime2016= "Verification time for scenario using dx and symptoms" scen_dxsymp_dttype2016= "1-incident 
+date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom" scen_dxsymp_vtype2016= "1-verification date is ADRD dx, 2-verification 
+date is drug use, 3-verification date is dem symptom, 4-verified by death" ;
+MPRINT(VERIFY):   if .<scen_dxsymp_vtime2017<0 then dropdxsymp2017=1;
+MPRINT(VERIFY):   label scen_dxsymp_dt2017= "ADRD incident date for scenario using dx and symptoms" scen_dxsymp_vdt2017= "Date of verification for 
+scenario using dx and symptoms" scen_dxsymp_vtime2017= "Verification time for scenario using dx and symptoms" scen_dxsymp_dttype2017= "1-incident 
+date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom" scen_dxsymp_vtype2017= "1-verification date is ADRD dx, 2-verification 
+date is drug use, 3-verification date is dem symptom, 4-verified by death" ;
+MPRINT(VERIFY):   run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      4 at 827:12    3 at 827:12    2 at 827:12    2 at 827:12    1 at 827:184   1 at 827:184   3 at 827:184   2 at 827:184   
+NOTE: There were 4 observations read from the data set WORK.CLAIMS.
+NOTE: The data set WORK.DEMV_LONG has 4 observations and 103 variables.
+NOTE: Compressing data set WORK.DEMV_LONG increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: DATA statement used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.01 seconds
+      
+
+MPRINT(VERIFY):   data data.dem2014 (keep=bene_id first_dx_dt first_dxsymp_dt scen_dx_dt2014 scen_dx_vdt2014 scen_dx_vtime2014 scen_dx_dttype2014 
+scen_dx_vtype2014 dropdx2014 scen_dxsymp_dt2014 scen_dxsymp_vdt2014 scen_dxsymp_vtime2014 scen_dxsymp_dttype2014 scen_dxsymp_vtype2014 
+dropdxsymp2014) data.dem2015 (keep=bene_id first_dx_dt first_dxsymp_dt scen_dx_dt2015 scen_dx_vdt2015 scen_dx_vtime2015 scen_dx_dttype2015 
+scen_dx_vtype2015 dropdx2015 scen_dxsymp_dt2015 scen_dxsymp_vdt2015 scen_dxsymp_vtime2015 scen_dxsymp_dttype2015 scen_dxsymp_vtype2015 
+dropdxsymp2015) data.dem2016 (keep=bene_id first_dx_dt first_dxsymp_dt scen_dx_dt2016 scen_dx_vdt2016 scen_dx_vtime2016 scen_dx_dttype2016 
+scen_dx_vtype2016 dropdx2016 scen_dxsymp_dt2016 scen_dxsymp_vdt2016 scen_dxsymp_vtime2016 scen_dxsymp_dttype2016 scen_dxsymp_vtype2016 
+dropdxsymp2016) data.dem2017_censor (keep=bene_id first_dx_dt first_dxsymp_dt scen_dx_dt2017 scen_dx_vdt2017 scen_dx_vtime2017 scen_dx_dttype2017 
+scen_dx_vtype2017 dropdx2017 scen_dxsymp_dt2017 scen_dxsymp_vdt2017 scen_dxsymp_vtime2017 scen_dxsymp_dttype2017 scen_dxsymp_vtype2017 
+dropdxsymp2017);
+MPRINT(VERIFY):   format bene_id first_dx_dt first_dxsymp_dt;
+MPRINT(VERIFY):   set demv_long;
+MPRINT(VERIFY):   by bene_id;
+MPRINT(VERIFY):   format first_dx_dt first_dxsymp_dt mmddyy10.;
+MPRINT(VERIFY):   first_dx_dt=min(of scen_dx_dt2014-scen_dx_dt2016);
+MPRINT(VERIFY):   first_dxsymp_dt=min(of scen_dxsymp_dt2014-scen_dxsymp_dt2016);
+MPRINT(VERIFY):   if last.bene_id;
+MPRINT(VERIFY):   run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      2 at 827:17   2 at 827:86   
+NOTE: There were 4 observations read from the data set WORK.DEMV_LONG.
+NOTE: The data set DATA.DEM2014 has 3 observations and 15 variables.
+NOTE: Compressing data set DATA.DEM2014 increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: The data set DATA.DEM2015 has 3 observations and 15 variables.
+NOTE: Compressing data set DATA.DEM2015 increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: The data set DATA.DEM2016 has 3 observations and 15 variables.
+NOTE: Compressing data set DATA.DEM2016 increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: The data set DATA.DEM2017_CENSOR has 3 observations and 15 variables.
+NOTE: Compressing data set DATA.DEM2017_CENSOR increased size by 100.00 percent. 
+      Compressed is 2 pages; un-compressed would require 1 pages.
+NOTE: DATA statement used (Total process time):
+      real time           0.23 seconds
+      cpu time            0.02 seconds
+      
+
+MPRINT(DEMV):  ;
+828        
+829        ***** Example;
+830        /*%demv(projhome=/research/dementia/,
+831        	  id=bene_id,
+832        	  minyear=2017,
+833        	  maxyear=2019,
+834        	  dxclaims=dem.claims2017 dem.claims2018 dem.claims2019 dem.claims2020 dem.claims2021,
+835        	  vyr=2,
+836        	  outprefix=dem.demv,
+837        	  userx=Y,
+838        	  rxclaims=dem.rxclaims2017 dem.rxclaims2018 dem.rxclaims2019 dem.rxclaims2020 dem.rxclaims2021,
+839        	  hasgnn=Y);*/
+840        
+841        
+842        
+843        
+844        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2.21 seconds
+      cpu time            0.10 seconds
+      

@@ -1,0 +1,57 @@
+cond,type,code,desc
+dem,ICD10DX,G300,Alzheimer's disease with early onset
+dem,ICD10DX,G301,Alzheimer's disease with late onset
+dem,ICD10DX,G308,Other Alzheimer's disease
+dem,ICD10DX,G309,"Alzheimer's disease, unspecified"
+dem,ICD10DX,F0150,"Vascular dementia, w/out behav disturbnc"
+dem,ICD10DX,F0151,"Vascular dementia, w/ behav disturbnc"
+dem,ICD10DX,F0280,Dementia in conditions cls-elsew w/out behav disturbnc
+dem,ICD10DX,F0281,"Dementia in conditions cls-elsew, w/ behav disturbnc"
+dem,ICD10DX,F0390,"Dementia, unspecified, w/out behav disturbnc"
+dem,ICD10DX,F0391,"Dementia, unspecified, w/ behav disturbnc"
+dem,ICD10DX,F05,Delirium due to known physiological cond
+dem,ICD10DX,G138,Systemic atrophy aff cnsl in oth diseases classd elsew
+dem,ICD10DX,G3101,Picks disease
+dem,ICD10DX,G3109,Other frontotemporal dementia
+dem,ICD10DX,G311,Senile degeneration
+dem,ICD10DX,G312,Degeneration of nervous system due to alcohol
+dem,ICD10DX,G3183,Lewy body dementia
+dem,ICD10DX,G94,Oth disorders of brain in diseases classd elsew
+dem,ICD10DX,R4181,Age-related cognitive decline
+symp,ICD10DX,R411,Anterograde amnesia
+symp,ICD10DX,R412,Retrograde amnesia
+symp,ICD10DX,R413,Other amnesia
+symp,ICD10DX,R4701,Aphasia
+symp,ICD10DX,R481,Agnosia
+symp,ICD10DX,R482,Apraxia
+symp,ICD10DX,R488,Other symbolic dysfunctions
+symp,ICD10DX,G3184,"Mild cognitive impairment, so stated"
+dem,ICD9DX,2900,"Senile dementia, uncomplicated"
+dem,ICD9DX,29010,"Presenile dementia, uncomplicated"
+dem,ICD9DX,29011,Presenile dementia w/ delirium
+dem,ICD9DX,29012,Presenile dementia w/ delusional features
+dem,ICD9DX,29013,Presenile dementia w/ depressive features
+dem,ICD9DX,29020,Senile dementia w/ delusional features
+dem,ICD9DX,29021,Senile dementia w/ depressive features
+dem,ICD9DX,2903,Senile dementia w/ delirium 
+dem,ICD9DX,29040,"Vascular dementia, uncomplicated"
+dem,ICD9DX,29041,"Vascular dementia, w/ delirium"
+dem,ICD9DX,29042,"Vascular dementia, w/ delusions "
+dem,ICD9DX,29043,"Vascular dementia, w/ depressed mood"
+dem,ICD9DX,2940,Amnestic disorder in conditions cls-elsew
+dem,ICD9DX,29410,Dementia in conditions cls-elsew w/out behav disturbnc
+dem,ICD9DX,29411,Dementia in conditions cls-elsew w/ behav disturbnc
+dem,ICD9DX,29420,"Dementia, unspecified, w/out behav disturbnc"
+dem,ICD9DX,29421,"Dementia, unspecified, w/ behav disturbnc"
+dem,ICD9DX,2948,Oth persistent mental disorders due to conds cls-elsew
+dem,ICD9DX,3310,Alzheimer's Disease
+dem,ICD9DX,33111,Picks disease
+dem,ICD9DX,33119,Other frontotemporal dementia
+dem,ICD9DX,3312,Senile degeneration of brain
+dem,ICD9DX,3317,Cerebral degeneration in disease cls-elsew
+dem,ICD9DX,797,Senility w/out mention of psychosis
+dem,ICD9DX,33182,Lewy body dementia
+symp,ICD9DX,78093,Amnesia
+symp,ICD9DX,7843,Aphasia
+symp,ICD9DX,78469,"Other symbolic dysfunctions, apraxia, agnosia"
+symp,ICD9DX,33183,"Mild cognitive impairment, so stated"

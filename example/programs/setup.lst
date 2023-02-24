@@ -1,0 +1,99 @@
+Dementia Algorithm                                                                                                11:12 Tuesday, February 21, 2023   1
+
+Obs   bene_id         date   icd_dx1   icd_dx2   icd_dx3   icd_dx4   icd_dx5   icd_dx6   icd_dx7   icd_dx8   icd_dx9   icd_dx10   death_date
+
+  1      3      07/01/2014    3310                                                                                                08/01/2014
+  2      0      01/13/2014    2500      4019      4931                                                                            04/01/2017
+  3      0      01/21/2015    2500      4019      4931                                                                            04/01/2017
+  4      1      01/01/2016    G301                                                                                                02/01/2016
+  5      0      02/01/2016    E119      I10       J4520                                                                           04/01/2017
+  6      0      11/01/2016    J4520                                                                                               04/01/2017
+  7      0      11/13/2017    N390      G308      I700      J4520      I10                                                        04/01/2017
+  8      2      01/01/2017    270                                                                                                          .
+  9      1      01/01/2017    G308                                                                                                02/01/2016
+ 10      0      01/27/2017    E119      I10       J4520                                                                           04/01/2017
+ 11      0      03/10/2017    I700      J4520     I10                                                                             04/01/2017
+Dementia Algorithm                                                                                                11:12 Tuesday, February 21, 2023   2
+
+                                                                                                                                s
+                                                                                                                          s     c       s
+                                                                                                                          c     e       c
+                                                                                                               s          e     n       e
+                                                           s                                      s            c          n     _       n
+                                                     s     c       s                              c            e          _     d       _
+                                                     c     e       c                              e            n          d     x       d
+                             f                       e     n       e           s                  n            _          x     s       x
+                             i             s         n     _       n           c                  _            d          s     y       s      d
+                             r             c         _     d       _           e                  d            x          y     m       y      r
+                             s             e         d     x       d           n                  x            s          m     p       m      o
+               f             t             n         x     _       x           _                  s            y          p     _       p      p
+               i             _             _         _     d       _           d        d         y            m          _     d       _      d
+               r             d             d         v     t       v           x        r         m            p          v     t       v      x
+               s             x             x         t     t       t           _        o         p            _          t     t       t      s
+     b         t             s             _         i     y       y           v        p         _            v          i     y       y      y
+     e         _             y             d         m     p       p           d        d         d            d          m     p       p      m
+     n         d             m             t         e     e       e           t        x         t            t          e     e       e      p
+     e         x             p             2         2     2       2           2        2         2            2          2     2       2      2
+O    _         _             _             0         0     0       0           0        0         0            0          0     0       0      0
+b    i         d             d             1         1     1       1           1        1         1            1          1     1       1      1
+s    d         t             t             4         4     4       4           4        4         4            4          4     4       4      4
+
+1    0             .             .             .     .                             .    .             .             .     .                    .
+2    1    01/01/2016    01/01/2016             .     .                             .    .             .             .     .                    .
+3    3    07/01/2014    07/01/2014    07/01/2014    31    1          4    08/01/2014    .    07/01/2014    08/01/2014    31    1          4    .
+Dementia Algorithm                                                                                                11:12 Tuesday, February 21, 2023   3
+
+                                                                                                                              s
+                                                                                                                        s     c       s
+                                                                                                                        c     e       c
+                                                                                                              s         e     n       e
+                                                          s                                      s            c         n     _       n
+                                                    s     c       s                              c            e         _     d       _
+                                                    c     e       c                              e            n         d     x       d
+                             f                      e     n       e           s                  n            _         x     s       x
+                             i             s        n     _       n           c                  _            d         s     y       s      d
+                             r             c        _     d       _           e                  d            x         y     m       y      r
+                             s             e        d     x       d           n                  x            s         m     p       m      o
+               f             t             n        x     _       x           _                  s            y         p     _       p      p
+               i             _             _        _     d       _           d        d         y            m         _     d       _      d
+               r             d             d        v     t       v           x        r         m            p         v     t       v      x
+               s             x             x        t     t       t           _        o         p            _         t     t       t      s
+     b         t             s             _        i     y       y           v        p         _            v         i     y       y      y
+     e         _             y             d        m     p       p           d        d         d            d         m     p       p      m
+     n         d             m             t        e     e       e           t        x         t            t         e     e       e      p
+     e         x             p             2        2     2       2           2        2         2            2         2     2       2      2
+O    _         _             _             0        0     0       0           0        0         0            0         0     0       0      0
+b    i         d             d             1        1     1       1           1        1         1            1         1     1       1      1
+s    d         t             t             5        5     5       5           5        5         5            5         5     5       5      5
+
+1    0             .             .             .    .                             .    .             .             .    .                    .
+2    1    01/01/2016    01/01/2016             .    .                             .    .             .             .    .                    .
+3    3    07/01/2014    07/01/2014             .    .                             .    .             .             .    .                    .
+Dementia Algorithm                                                                                                11:12 Tuesday, February 21, 2023   4
+
+                                                                                                                                s
+                                                                                                                          s     c       s
+                                                                                                                          c     e       c
+                                                                                                               s          e     n       e
+                                                           s                                      s            c          n     _       n
+                                                     s     c       s                              c            e          _     d       _
+                                                     c     e       c                              e            n          d     x       d
+                             f                       e     n       e           s                  n            _          x     s       x
+                             i             s         n     _       n           c                  _            d          s     y       s      d
+                             r             c         _     d       _           e                  d            x          y     m       y      r
+                             s             e         d     x       d           n                  x            s          m     p       m      o
+               f             t             n         x     _       x           _                  s            y          p     _       p      p
+               i             _             _         _     d       _           d        d         y            m          _     d       _      d
+               r             d             d         v     t       v           x        r         m            p          v     t       v      x
+               s             x             x         t     t       t           _        o         p            _          t     t       t      s
+     b         t             s             _         i     y       y           v        p         _            v          i     y       y      y
+     e         _             y             d         m     p       p           d        d         d            d          m     p       p      m
+     n         d             m             t         e     e       e           t        x         t            t          e     e       e      p
+     e         x             p             2         2     2       2           2        2         2            2          2     2       2      2
+O    _         _             _             0         0     0       0           0        0         0            0          0     0       0      0
+b    i         d             d             1         1     1       1           1        1         1            1          1     1       1      1
+s    d         t             t             6         6     6       6           6        6         6            6          6     6       6      6
+
+1    0             .             .             .     .                             .    .             .             .     .                    .
+2    1    01/01/2016    01/01/2016    01/01/2016    31    1          4    02/01/2016    .    01/01/2016    02/01/2016    31    1          4    .
+3    3    07/01/2014    07/01/2014             .     .                             .    .             .             .     .                    .
