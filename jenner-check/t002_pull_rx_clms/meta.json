@@ -1,0 +1,7 @@
+{
+  "bundle": "t002_pull_rx_clms",
+  "source_file": "programs/pull_rx_clms.sas",
+  "source_blob_sha": "dda8f8ac6150585104c38810cb8db30462cdeafc",
+  "source_commit": "76320697ada7f34035c0564af10391057bf44c64",
+  "notes": "Identifies dementia-drug claims (donepezil/galantamine/memantine/rivastigmine) via the hasgnn=Y generic-name matching branch. Caller setup (%let id/rxclaims/hasgnn) and 5-row synthetic drug-claims sample (bene_id, date, gnn) invented for this bundle; the macro body (pullrx) and matching logic are byte-identical to programs/pull_rx_clms.sas. No repo data files used."
+}

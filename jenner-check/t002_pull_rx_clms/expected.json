@@ -1,0 +1,14 @@
+{
+  "_captured_at": "2026-08-18T05:58:00Z",
+  "_captured_run_id": "r_bd5a07cd208b45cebae05ac37d4a9de8",
+  "status": "ok",
+  "exit_code": 0,
+  "log_contains": [
+    "NOTE: Wrote inputrx (5 rows, 3 columns).",
+    "NOTE: Wrote rx1 (3 rows, 5 columns).",
+    "NOTE: Wrote rxdt (3 rows, 4 columns).",
+    "NOTE: PROC PRINT completed: 3 observations printed, 4 variables"
+  ],
+  "log_does_not_contain": ["ERROR:", "[JENNER-ERROR"],
+  "diagnostics": {"parse_warnings": [], "runtime_warnings": []}
+}

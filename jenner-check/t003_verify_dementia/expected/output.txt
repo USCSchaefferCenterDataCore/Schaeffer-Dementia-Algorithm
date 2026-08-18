@@ -1,0 +1,20 @@
+Dementia Algorithm - verify_dementia.sas (Jenner compatibility bundle)
+
+Dementia Algorithm - verify_dementia.sas (Jenner compatibility bundle)
+
+
+  Obs  scen_dx_dt2018  scen_dx_vtime2018  scen_dx_dttype2018  scen_dx_vtype2018  scen_dx_vdt2018  scen_dxsymp_dt2018  scen_dxsymp_vdt2018  scen_dxsymp_vtime2018  scen_dxsymp_dttype2018  scen_dxsymp_vtype2018  bene_id  dropdx2018  dropdxsymp2018  first_dx_dt  first_dxsymp_dt
+-----  --------------  -----------------  ------------------  -----------------  ---------------  ------------------  -------------------  ---------------------  ----------------------  ---------------------  -------  ----------  --------------  -----------  ---------------
+    1      03/01/2018                184  1                   1                       09/01/2018                   .                    .                      .                                                     201           .               .   03/01/2018                .
+    2               .                  .                                                       .                   .                    .                      .                                                     202           .               .            .                .
+    3               .                  .                                                       .                   .                    .                      .                                                     203           .               .            .                .
+
+Dementia Algorithm - verify_dementia.sas (Jenner compatibility bundle)
+
+
+  Obs  scen_dx_dt2019  scen_dx_vtime2019  scen_dx_dttype2019  scen_dx_vtype2019  scen_dx_vdt2019  scen_dxsymp_dt2019  scen_dxsymp_vdt2019  scen_dxsymp_vtime2019  scen_dxsymp_dttype2019  scen_dxsymp_vtype2019  bene_id  dropdx2019  dropdxsymp2019  first_dx_dt  first_dxsymp_dt
+-----  --------------  -----------------  ------------------  -----------------  ---------------  ------------------  -------------------  ---------------------  ----------------------  ---------------------  -------  ----------  --------------  -----------  ---------------
+    1               .                  .                                                       .                   .                    .                      .                                                     201           .               .   03/01/2018                .
+    2               .                  .                                                       .                   .                    .                      .                                                     202           .               .            .                .
+    3      02/01/2019                120  1                      4                    06/01/2019          02/01/2019           06/01/2019                    120  1                          4                       203           .               .            .                .
+

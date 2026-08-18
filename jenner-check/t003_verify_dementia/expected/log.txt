@@ -1,0 +1,378 @@
+NOTE: Option OBS changed to 100.
+NOTE: Option TITLE changed to Dementia Algorithm - verify_dementia.sas (Jenner compatibility bundle).
+NOTE: Option COMPRESS changed to YES.
+NOTE: Option LS changed to 150.
+NOTE: Option PS changed to 200.
+NOTE: Option ERRORS changed to 5.
+NOTE: Option MERGENOBY changed to WARN.
+NOTE: Option VARLENCHK changed to ERROR.
+NOTE: Option DKRICOND changed to ERROR.
+NOTE: Option DKROCOND changed to ERROR.
+NOTE: Option MSGLEVEL changed to I.
+NOTE: DATA claims
+
+NOTE: Processing inline DATALINES (4 lines)
+
+NOTE: Read 4 rows from DATALINES.
+NOTE: Wrote claims (4 rows, 6 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC SQL 
+
+NOTE: Macro variable MINDATAYEAR =     2018
+NOTE: Macro variable MAXDATAYEAR =     2019
+NOTE: PROC SQL statement used.
+First Year of Dementia Data:     2018
+Last Year of Dementia Data:     2019
+First Year with Censorship with 1-Year Verification Window: 2019
+Censoring (1-Yes,0-No): 1
+NOTE: DATA _null_
+
+
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+MPRINT(VERIFY):   data demv_long;
+MPRINT(VERIFY):   set claims;
+MPRINT(VERIFY):   by bene_id year date;
+MPRINT(VERIFY):   * Scenario 1: Two records of AD Diagnosis;
+MPRINT(VERIFY):   retain scen_dx_dt2018 scen_dx_vtime2018 scen_dx_dx2dt2018 scen_dx_dttype2018 scen_dx_vtype2018 scen_dx_vdt2018 ;
+MPRINT(VERIFY):   format scen_dx_dt2018 scen_dx_vdt2018 scen_dx_dx2dt2018 mmddyy10. scen_dx_dttype2018 scen_dx_vtype2018 $4.;
+MPRINT(VERIFY):   if (first.year and year=2018) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dx_dt2018=.;
+MPRINT(VERIFY):   scen_dx_dttype2018="";
+MPRINT(VERIFY):   scen_dx_vtype2018="";
+MPRINT(VERIFY):   scen_dx_vtime2018=.;
+MPRINT(VERIFY):   scen_dx_dx2dt2018=.;
+MPRINT(VERIFY):   scen_dx_vdt2018=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if year>=2018 then do;
+MPRINT(VERIFY):   if demdx=1 then do;
+MPRINT(VERIFY):   if scen_dx_dt2018=. and .<date-scen_dx_dx2dt2018<=365 then do;
+MPRINT(VERIFY):   scen_dx_dt2018=scen_dx_dx2dt2018;
+MPRINT(VERIFY):   scen_dx_vdt2018=date;
+MPRINT(VERIFY):   scen_dx_vtime2018=date-scen_dx_dt2018;
+MPRINT(VERIFY):   scen_dx_dttype2018="1";
+MPRINT(VERIFY):   scen_dx_vtype2018="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else if scen_dx_dt2018=. and year(date)=2018 then scen_dx_dx2dt2018=date;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain scen_dx_dt2019 scen_dx_vtime2019 scen_dx_dx2dt2019 scen_dx_dttype2019 scen_dx_vtype2019 scen_dx_vdt2019 ;
+MPRINT(VERIFY):   format scen_dx_dt2019 scen_dx_vdt2019 scen_dx_dx2dt2019 mmddyy10. scen_dx_dttype2019 scen_dx_vtype2019 $4.;
+MPRINT(VERIFY):   if (first.year and year=2019) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dx_dt2019=.;
+MPRINT(VERIFY):   scen_dx_dttype2019="";
+MPRINT(VERIFY):   scen_dx_vtype2019="";
+MPRINT(VERIFY):   scen_dx_vtime2019=.;
+MPRINT(VERIFY):   scen_dx_dx2dt2019=.;
+MPRINT(VERIFY):   scen_dx_vdt2019=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if year>=2019 then do;
+MPRINT(VERIFY):   if demdx=1 then do;
+MPRINT(VERIFY):   if scen_dx_dt2019=. and .<date-scen_dx_dx2dt2019<=365 then do;
+MPRINT(VERIFY):   scen_dx_dt2019=scen_dx_dx2dt2019;
+MPRINT(VERIFY):   scen_dx_vdt2019=date;
+MPRINT(VERIFY):   scen_dx_vtime2019=date-scen_dx_dt2019;
+MPRINT(VERIFY):   scen_dx_dttype2019="1";
+MPRINT(VERIFY):   scen_dx_vtype2019="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else if scen_dx_dt2019=. and year(date)=2019 then scen_dx_dx2dt2019=date;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   * Death scenarios;
+MPRINT(VERIFY):   if (first.year and year=2018) or first.bene_id then do;
+MPRINT(VERIFY):   death_dx2018=.;
+MPRINT(VERIFY):   death_dx_type2018="    ";
+MPRINT(VERIFY):   death_dx_vtime2018=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dx2018 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2018 then do;
+MPRINT(VERIFY):   if death_dx2018=. and demdx and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dx2018=date;
+MPRINT(VERIFY):   death_dx_vtime2018=death_date-date;
+MPRINT(VERIFY):   death_dx_type2018="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2019) or first.bene_id then do;
+MPRINT(VERIFY):   death_dx2019=.;
+MPRINT(VERIFY):   death_dx_type2019="    ";
+MPRINT(VERIFY):   death_dx_vtime2019=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dx2019 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2019 then do;
+MPRINT(VERIFY):   if death_dx2019=. and demdx and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dx2019=date;
+MPRINT(VERIFY):   death_dx_vtime2019=death_date-date;
+MPRINT(VERIFY):   death_dx_type2019="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   * Using death scenario as last resort if missing;
+MPRINT(VERIFY):   if last.bene_id then do;
+MPRINT(VERIFY):   if scen_dx_dt2018=. and death_dx2018 ne . then do;
+MPRINT(VERIFY):   scen_dx_dt2018=death_dx2018;
+MPRINT(VERIFY):   scen_dx_vdt2018=death_date;
+MPRINT(VERIFY):   scen_dx_vtime2018=death_dx_vtime2018;
+MPRINT(VERIFY):   scen_dx_dttype2018=death_dx_type2018;
+MPRINT(VERIFY):   scen_dx_vtype2018="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dx_dt2019=. and death_dx2019 ne . then do;
+MPRINT(VERIFY):   scen_dx_dt2019=death_dx2019;
+MPRINT(VERIFY):   scen_dx_vdt2019=death_date;
+MPRINT(VERIFY):   scen_dx_vtime2019=death_dx_vtime2019;
+MPRINT(VERIFY):   scen_dx_dttype2019=death_dx_type2019;
+MPRINT(VERIFY):   scen_dx_vtype2019="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if .<scen_dx_vtime2018<0 then dropdx2018=1;
+MPRINT(VERIFY):   label
+MPRINT(VERIFY):   scen_dx_dt2018="ADRD incident date for scenario using only dx"
+MPRINT(VERIFY):   scen_dx_vdt2018="Date of verification for scenario using only dx"
+MPRINT(VERIFY):   scen_dx_vtime2018="Verification time for scenario using only dx"
+MPRINT(VERIFY):   scen_dx_dttype2018="1-incident date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom"
+MPRINT(VERIFY):   scen_dx_vtype2018="1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem symptom, 4-verified by death"
+MPRINT(VERIFY):   ;
+MPRINT(VERIFY):   if .<scen_dx_vtime2019<0 then dropdx2019=1;
+MPRINT(VERIFY):   label
+MPRINT(VERIFY):   scen_dx_dt2019="ADRD incident date for scenario using only dx"
+MPRINT(VERIFY):   scen_dx_vdt2019="Date of verification for scenario using only dx"
+MPRINT(VERIFY):   scen_dx_vtime2019="Verification time for scenario using only dx"
+MPRINT(VERIFY):   scen_dx_dttype2019="1-incident date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom"
+MPRINT(VERIFY):   scen_dx_vtype2019="1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem symptom, 4-verified by death"
+MPRINT(VERIFY):   ;
+MPRINT(VERIFY):   * Scenario Symp: dx +dx, dx + symp;
+MPRINT(VERIFY):   array scen_dxsymp_dxdt_ [         730] _temporary_;
+MPRINT(VERIFY):   array scen_dxsymp_type_ [         730] $4. _temporary_;
+MPRINT(VERIFY):   if first.bene_id then do;
+MPRINT(VERIFY):   do i=1 to          730;
+MPRINT(VERIFY):   scen_dxsymp_dxdt_[i]=.;
+MPRINT(VERIFY):   scen_dxsymp_type_[i]="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   day=date-mdy(1,1,    2018)+1;
+MPRINT(VERIFY):   start=max(1,date-mdy(1,1,    2018)-365+1);
+MPRINT(VERIFY):   end=min(day,         730);
+MPRINT(VERIFY):   if (demdx or sympdx) and 1<=day<=         730 then do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt_[day]=date;
+MPRINT(VERIFY):   if demdx then substr(scen_dxsymp_type_[day],1,1)="1";
+MPRINT(VERIFY):   if sympdx then substr(scen_dxsymp_type_[day],3,1)="3";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   *start is capped at start of year;
+MPRINT(VERIFY):   startyr_day=mdy(1,1,2018)-mdy(1,1,    2018)+1;
+MPRINT(VERIFY):   start=max(start,startyr_day);
+MPRINT(VERIFY):   retain scen_dxsymp_dt2018 scen_dxsymp_dxdt2018 scen_dxsymp_dx2dt2018 scen_dxsymp_vdt2018 scen_dxsymp_vtime2018 scen_dxsymp_dttype2018
+MPRINT(VERIFY):   scen_dxsymp_vtype2018 scen_dxsymp_dx2type2018;
+MPRINT(VERIFY):   format scen_dxsymp_dt2018 scen_dxsymp_dxdt2018 scen_dxsymp_dx2dt2018 scen_dxsymp_vdt2018 mmddyy10.
+MPRINT(VERIFY):   scen_dxsymp_dttype2018 scen_dxsymp_vtype2018 scen_dxsymp_dx2type2018 $4.;
+MPRINT(VERIFY):   if (first.year and year=2018) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2018=.;
+MPRINT(VERIFY):   scen_dxsymp_vtime2018=.;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2018=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2018=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2018="";
+MPRINT(VERIFY):   scen_dxsymp_vdt2018=.;
+MPRINT(VERIFY):   scen_dxsymp_dttype2018="";
+MPRINT(VERIFY):   scen_dxsymp_vtype2018="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if 2018<=year<=2019 then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2018=. then do;
+MPRINT(VERIFY):   do i=start to end;
+MPRINT(VERIFY):   if (find(scen_dxsymp_type_[i],"1")) and scen_dxsymp_dxdt2018=. then scen_dxsymp_dxdt2018=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   * getting second qualifying;
+MPRINT(VERIFY):   if scen_dxsymp_dx2dt2018=. then do;
+MPRINT(VERIFY):   if (scen_dxsymp_type_[i]="1" and scen_dxsymp_dxdt_[i]>scen_dxsymp_dxdt2018)
+MPRINT(VERIFY):   or (find(scen_dxsymp_type_[i],"3")) then do;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2018=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   scen_dxsymp_dx2type2018=scen_dxsymp_type_[i];
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2018 ne . and scen_dxsymp_dx2dt2018 ne .
+MPRINT(VERIFY):   and min(year(scen_dxsymp_dxdt2018),year(scen_dxsymp_dx2dt2018))=2018 then do; * ensuring that minimum date is in year, otherwise, keep searching;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2018<=scen_dxsymp_dx2dt2018 then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2018=scen_dxsymp_dxdt2018;
+MPRINT(VERIFY):   scen_dxsymp_vdt2018=scen_dxsymp_dx2dt2018;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2018<scen_dxsymp_dx2dt2018 then substr(scen_dxsymp_dttype2018,1,1)="1";
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2018=scen_dxsymp_dx2dt2018 then scen_dxsymp_dttype2018="1 3";
+MPRINT(VERIFY):   scen_dxsymp_vtype2018=scen_dxsymp_dx2type2018;
+MPRINT(VERIFY):   scen_dxsymp_vtime2018=scen_dxsymp_dx2dt2018-scen_dxsymp_dxdt2018;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (scen_dxsymp_dx2dt2018<scen_dxsymp_dxdt2018) then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2018=scen_dxsymp_dx2dt2018;
+MPRINT(VERIFY):   scen_dxsymp_vdt2018=scen_dxsymp_dxdt2018;
+MPRINT(VERIFY):   scen_dxsymp_dttype2018=scen_dxsymp_dx2type2018;
+MPRINT(VERIFY):   scen_dxsymp_vtype2018="1";
+MPRINT(VERIFY):   scen_dxsymp_vtime2018=scen_dxsymp_dxdt2018-scen_dxsymp_dx2dt2018;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2018=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2018=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2018="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   *start is capped at start of year;
+MPRINT(VERIFY):   startyr_day=mdy(1,1,2019)-mdy(1,1,    2018)+1;
+MPRINT(VERIFY):   start=max(start,startyr_day);
+MPRINT(VERIFY):   retain scen_dxsymp_dt2019 scen_dxsymp_dxdt2019 scen_dxsymp_dx2dt2019 scen_dxsymp_vdt2019 scen_dxsymp_vtime2019 scen_dxsymp_dttype2019
+MPRINT(VERIFY):   scen_dxsymp_vtype2019 scen_dxsymp_dx2type2019;
+MPRINT(VERIFY):   format scen_dxsymp_dt2019 scen_dxsymp_dxdt2019 scen_dxsymp_dx2dt2019 scen_dxsymp_vdt2019 mmddyy10.
+MPRINT(VERIFY):   scen_dxsymp_dttype2019 scen_dxsymp_vtype2019 scen_dxsymp_dx2type2019 $4.;
+MPRINT(VERIFY):   if (first.year and year=2019) or first.bene_id then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2019=.;
+MPRINT(VERIFY):   scen_dxsymp_vtime2019=.;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2019=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2019=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2019="";
+MPRINT(VERIFY):   scen_dxsymp_vdt2019=.;
+MPRINT(VERIFY):   scen_dxsymp_dttype2019="";
+MPRINT(VERIFY):   scen_dxsymp_vtype2019="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if 2019<=year<=2020 then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2019=. then do;
+MPRINT(VERIFY):   do i=start to end;
+MPRINT(VERIFY):   if (find(scen_dxsymp_type_[i],"1")) and scen_dxsymp_dxdt2019=. then scen_dxsymp_dxdt2019=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   * getting second qualifying;
+MPRINT(VERIFY):   if scen_dxsymp_dx2dt2019=. then do;
+MPRINT(VERIFY):   if (scen_dxsymp_type_[i]="1" and scen_dxsymp_dxdt_[i]>scen_dxsymp_dxdt2019)
+MPRINT(VERIFY):   or (find(scen_dxsymp_type_[i],"3")) then do;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2019=scen_dxsymp_dxdt_[i];
+MPRINT(VERIFY):   scen_dxsymp_dx2type2019=scen_dxsymp_type_[i];
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2019 ne . and scen_dxsymp_dx2dt2019 ne .
+MPRINT(VERIFY):   and min(year(scen_dxsymp_dxdt2019),year(scen_dxsymp_dx2dt2019))=2019 then do; * ensuring that minimum date is in year, otherwise, keep searching;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2019<=scen_dxsymp_dx2dt2019 then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2019=scen_dxsymp_dxdt2019;
+MPRINT(VERIFY):   scen_dxsymp_vdt2019=scen_dxsymp_dx2dt2019;
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2019<scen_dxsymp_dx2dt2019 then substr(scen_dxsymp_dttype2019,1,1)="1";
+MPRINT(VERIFY):   if scen_dxsymp_dxdt2019=scen_dxsymp_dx2dt2019 then scen_dxsymp_dttype2019="1 3";
+MPRINT(VERIFY):   scen_dxsymp_vtype2019=scen_dxsymp_dx2type2019;
+MPRINT(VERIFY):   scen_dxsymp_vtime2019=scen_dxsymp_dx2dt2019-scen_dxsymp_dxdt2019;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (scen_dxsymp_dx2dt2019<scen_dxsymp_dxdt2019) then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2019=scen_dxsymp_dx2dt2019;
+MPRINT(VERIFY):   scen_dxsymp_vdt2019=scen_dxsymp_dxdt2019;
+MPRINT(VERIFY):   scen_dxsymp_dttype2019=scen_dxsymp_dx2type2019;
+MPRINT(VERIFY):   scen_dxsymp_vtype2019="1";
+MPRINT(VERIFY):   scen_dxsymp_vtime2019=scen_dxsymp_dxdt2019-scen_dxsymp_dx2dt2019;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   else do;
+MPRINT(VERIFY):   scen_dxsymp_dxdt2019=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2dt2019=.;
+MPRINT(VERIFY):   scen_dxsymp_dx2type2019="";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   * Death scenarios;
+MPRINT(VERIFY):   if (first.year and year=2018) or first.bene_id then do;
+MPRINT(VERIFY):   death_dxsymp2018=.;
+MPRINT(VERIFY):   death_dxsymp_type2018="    ";
+MPRINT(VERIFY):   death_dxsymp_v2018=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dxsymp2018 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2018 then do;
+MPRINT(VERIFY):   if death_dxsymp2018=. and (demdx) and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dxsymp2018=date;
+MPRINT(VERIFY):   death_dxsymp_vtime2018=death_date-date;
+MPRINT(VERIFY):   if demdx then substr(death_dxsymp_type2018,1,1)="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if (first.year and year=2019) or first.bene_id then do;
+MPRINT(VERIFY):   death_dxsymp2019=.;
+MPRINT(VERIFY):   death_dxsymp_type2019="    ";
+MPRINT(VERIFY):   death_dxsymp_v2019=.;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   retain death_dx:;
+MPRINT(VERIFY):   format death_dxsymp2019 death_date mmddyy10.;
+MPRINT(VERIFY):   if year=2019 then do;
+MPRINT(VERIFY):   if death_dxsymp2019=. and (demdx) and .<death_date-date<=365 then do;
+MPRINT(VERIFY):   death_dxsymp2019=date;
+MPRINT(VERIFY):   death_dxsymp_vtime2019=death_date-date;
+MPRINT(VERIFY):   if demdx then substr(death_dxsymp_type2019,1,1)="1";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   * Using death scenario as last resort if missing;
+MPRINT(VERIFY):   if last.bene_id then do;
+MPRINT(VERIFY):   if scen_dxsymp_dt2018=. and death_dxsymp2018 ne . then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2018=death_dxsymp2018;
+MPRINT(VERIFY):   scen_dxsymp_vdt2018=death_date;
+MPRINT(VERIFY):   scen_dxsymp_vtime2018=death_dxsymp_vtime2018;
+MPRINT(VERIFY):   scen_dxsymp_dttype2018=death_dxsymp_type2018;
+MPRINT(VERIFY):   scen_dxsymp_vtype2018="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if scen_dxsymp_dt2019=. and death_dxsymp2019 ne . then do;
+MPRINT(VERIFY):   scen_dxsymp_dt2019=death_dxsymp2019;
+MPRINT(VERIFY):   scen_dxsymp_vdt2019=death_date;
+MPRINT(VERIFY):   scen_dxsymp_vtime2019=death_dxsymp_vtime2019;
+MPRINT(VERIFY):   scen_dxsymp_dttype2019=death_dxsymp_type2019;
+MPRINT(VERIFY):   scen_dxsymp_vtype2019="   4";
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   end;
+MPRINT(VERIFY):   if .<scen_dxsymp_vtime2018<0 then dropdxsymp2018=1;
+MPRINT(VERIFY):   label
+MPRINT(VERIFY):   scen_dxsymp_dt2018="ADRD incident date for scenario using dx and symptoms"
+MPRINT(VERIFY):   scen_dxsymp_vdt2018="Date of verification for scenario using dx and symptoms"
+MPRINT(VERIFY):   scen_dxsymp_vtime2018="Verification time for scenario using dx and symptoms"
+MPRINT(VERIFY):   scen_dxsymp_dttype2018="1-incident date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom"
+MPRINT(VERIFY):   scen_dxsymp_vtype2018="1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem symptom, 4-verified by death"
+MPRINT(VERIFY):   ;
+MPRINT(VERIFY):   if .<scen_dxsymp_vtime2019<0 then dropdxsymp2019=1;
+MPRINT(VERIFY):   label
+MPRINT(VERIFY):   scen_dxsymp_dt2019="ADRD incident date for scenario using dx and symptoms"
+MPRINT(VERIFY):   scen_dxsymp_vdt2019="Date of verification for scenario using dx and symptoms"
+MPRINT(VERIFY):   scen_dxsymp_vtime2019="Verification time for scenario using dx and symptoms"
+MPRINT(VERIFY):   scen_dxsymp_dttype2019="1-incident date is ADRD dx, 2-incident date is drug use, 3-incident date is dem symptom"
+MPRINT(VERIFY):   scen_dxsymp_vtype2019="1-verification date is ADRD dx, 2-verification date is drug use, 3-verification date is dem symptom, 4-verified by death"
+MPRINT(VERIFY):   ;
+MPRINT(VERIFY):   run;
+MPRINT(VERIFY):   data
+MPRINT(VERIFY):   dem2018 (keep=bene_id first_dx_dt first_dxsymp_dt
+MPRINT(VERIFY):   scen_dx_dt2018 scen_dx_vdt2018 scen_dx_vtime2018 scen_dx_dttype2018 scen_dx_vtype2018 dropdx2018
+MPRINT(VERIFY):   scen_dxsymp_dt2018 scen_dxsymp_vdt2018 scen_dxsymp_vtime2018 scen_dxsymp_dttype2018 scen_dxsymp_vtype2018 dropdxsymp2018
+MPRINT(VERIFY):   )
+MPRINT(VERIFY):   dem2019_censor (keep=bene_id first_dx_dt first_dxsymp_dt
+MPRINT(VERIFY):   scen_dx_dt2019 scen_dx_vdt2019 scen_dx_vtime2019 scen_dx_dttype2019 scen_dx_vtype2019 dropdx2019
+MPRINT(VERIFY):   scen_dxsymp_dt2019 scen_dxsymp_vdt2019 scen_dxsymp_vtime2019 scen_dxsymp_dttype2019 scen_dxsymp_vtype2019 dropdxsymp2019
+MPRINT(VERIFY):   )
+MPRINT(VERIFY):   ;
+MPRINT(VERIFY):   format bene_id first_dx_dt first_dxsymp_dt;
+MPRINT(VERIFY):   set demv_long;
+MPRINT(VERIFY):   by bene_id;
+MPRINT(VERIFY):   format first_dx_dt first_dxsymp_dt mmddyy10.;
+MPRINT(VERIFY):   first_dx_dt=min(of scen_dx_dt2018-scen_dx_dt2018);
+MPRINT(VERIFY):   first_dxsymp_dt=min(of scen_dxsymp_dt2018-scen_dxsymp_dt2018);
+MPRINT(VERIFY):   if last.bene_id;
+MPRINT(VERIFY):   run;
+730
+NOTE: DATA demv_long
+
+
+NOTE: Read 4 rows from claims.
+NOTE: Wrote demv_long (4 rows, 58 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: DATA dem2018 dem2019_censor
+
+NOTE: Multi-output DATA step splits stream into: dem2018 dem2019_censor
+
+NOTE: Read 4 rows from demv_long.
+NOTE: Wrote dem2018 (3 rows, 60 columns).
+NOTE: Wrote dem2019_censor (3 rows, 60 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC PRINT data=dem2018
+
+NOTE: PROC PRINT completed: 3 observations printed, 15 variables
+NOTE: PROC PRINT data=dem2019_censor
+
+NOTE: PROC PRINT completed: 3 observations printed, 15 variables
