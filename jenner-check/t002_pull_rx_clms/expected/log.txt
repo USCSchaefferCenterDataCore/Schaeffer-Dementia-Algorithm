@@ -1,0 +1,70 @@
+NOTE: Option OBS changed to 100.
+NOTE: Option TITLE changed to Dementia Algorithm - pull_rx_clms.sas (Jenner compatibility bundle).
+NOTE: Option COMPRESS changed to YES.
+NOTE: Option LS changed to 150.
+NOTE: Option PS changed to 200.
+NOTE: Option ERRORS changed to 5.
+NOTE: Option MERGENOBY changed to WARN.
+NOTE: Option VARLENCHK changed to ERROR.
+NOTE: Option DKRICOND changed to ERROR.
+NOTE: Option DKROCOND changed to ERROR.
+NOTE: Option MSGLEVEL changed to I.
+NOTE: DATA inputrx
+
+NOTE: Processing inline DATALINES (5 lines)
+
+NOTE: Read 5 rows from DATALINES.
+NOTE: Wrote inputrx (5 rows, 3 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+Number of GNN: 4
+Number of input RX datasets: 1
+MPRINT(PULLRX):   data rx1;
+MPRINT(PULLRX):   set inputrx;
+MPRINT(PULLRX):   rx_=0;
+MPRINT(PULLRX):   if find(lowcase(gnn),scan("donepezil galantamine memantine rivastigmine",1))>0 then rx_=1;
+MPRINT(PULLRX):   if find(lowcase(gnn),scan("donepezil galantamine memantine rivastigmine",2))>0 then rx_=1;
+MPRINT(PULLRX):   if find(lowcase(gnn),scan("donepezil galantamine memantine rivastigmine",3))>0 then rx_=1;
+MPRINT(PULLRX):   if find(lowcase(gnn),scan("donepezil galantamine memantine rivastigmine",4))>0 then rx_=1;
+MPRINT(PULLRX):   if rx_;
+MPRINT(PULLRX):   year=year(date);
+MPRINT(PULLRX):   keep bene_id rx_ gnn date year;
+MPRINT(PULLRX):   run;
+MPRINT(PULLRX):   proc sort data=rx1 out=rx_s1; by bene_id year date; run;
+MPRINT(PULLRX):   *stack;
+MPRINT(PULLRX):   data rxdt;
+MPRINT(PULLRX):   set rx_s1 ;
+MPRINT(PULLRX):   by bene_id year date;
+MPRINT(PULLRX):   * initialize rx and symp flags;
+MPRINT(PULLRX):   if first.date then rx=0;
+MPRINT(PULLRX):   retain rx;
+MPRINT(PULLRX):   if rx_=1 then rx=1;
+MPRINT(PULLRX):   if last.date;
+MPRINT(PULLRX):   keep bene_id date rx year;
+MPRINT(PULLRX):   run;
+NOTE: DATA rx1
+
+
+NOTE: Read 5 rows from inputrx.
+NOTE: Wrote rx1 (3 rows, 5 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC SORT data=rx1
+
+NOTE: Unlicensed mode - input limited to 100 observations.
+NOTE: Read 3 rows from rx1.
+NOTE: Wrote rx_s1 (3 rows, 5 columns).
+NOTE: PROC SORT statement used.
+NOTE: DATA rxdt
+
+
+NOTE: Read 3 rows from rx_s1.
+NOTE: Wrote rxdt (3 rows, 4 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC PRINT data=rxdt
+
+NOTE: PROC PRINT completed: 3 observations printed, 4 variables

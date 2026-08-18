@@ -1,0 +1,7 @@
+{
+  "bundle": "t003_verify_dementia",
+  "source_file": "programs/verify_dementia.sas",
+  "source_blob_sha": "be04a61ef1e37d0f086e7a939244bdf9a8df4c84",
+  "source_commit": "76320697ada7f34035c0564af10391057bf44c64",
+  "notes": "Runs the %verify macro body (dx-only and dx+symptom incidence/verification scenarios, plus the death-scenario fallback) byte-identical to programs/verify_dementia.sas, for a 2-year (2018-2019) window with userx=N. The preceding setup block reproduces, inline, the small amount of bookkeeping demv_wrap.sas normally does via %demv(...) before %include-ing this file (id/year-window/censoring macro vars) so the bundle is self-contained instead of doing a filesystem %include. The 4-row synthetic 'claims' dataset (bene_id, date, demdx, sympdx, death_date) is invented for this bundle: bene_id 201 has two qualifying diagnoses 184 days apart (verifies via dx-only scenario), bene_id 202 has one unconfirmed diagnosis (does not verify), bene_id 203 has one diagnosis followed by death within 365 days (verifies via the death-scenario fallback). No repository data files used."
+}

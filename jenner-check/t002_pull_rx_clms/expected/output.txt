@@ -1,0 +1,9 @@
+Dementia Algorithm - pull_rx_clms.sas (Jenner compatibility bundle)
+
+
+  Obs  bene_id        date  rx  year
+-----  -------  ----------  --  ----
+    1      101  02/10/2018   1  2018
+    2      103  07/22/2018   1  2018
+    3      104  08/14/2019   1  2019
+

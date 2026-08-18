@@ -1,0 +1,14 @@
+{
+  "_captured_at": "2026-08-18T06:02:00Z",
+  "_captured_run_id": "r_fcde3f8a092842c6b9f8f2cd35881038",
+  "status": "ok",
+  "exit_code": 0,
+  "log_contains": [
+    "NOTE: Wrote demv_long (4 rows, 58 columns).",
+    "NOTE: Wrote dem2018 (3 rows, 60 columns).",
+    "NOTE: Wrote dem2019_censor (3 rows, 60 columns).",
+    "NOTE: PROC PRINT completed: 3 observations printed, 15 variables"
+  ],
+  "log_does_not_contain": ["ERROR:", "[JENNER-ERROR"],
+  "diagnostics": {"parse_warnings": [], "runtime_warnings": []}
+}
